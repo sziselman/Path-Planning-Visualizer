@@ -7,7 +7,7 @@ using namespace std;
 
 Visualizer::Visualizer(int width, int height) : window(sf::VideoMode(width, height), "SFML works!"), 
                                                 grid(width, height, window, mouse) {
-    cout << "hey bitch" << endl;
+    cout << "initializing path planning visualizer" << endl;
 }
 
 Visualizer::~Visualizer() {}
@@ -31,7 +31,11 @@ void Visualizer::display(void) {
             }
 
             if (mouse.isButtonPressed(sf::Mouse::Left)) {
-                grid.updateSearch();
+                grid.updateGrid();
+            }
+
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter)) {
+                cout << "starting serach" << endl;
             }
         }
 }

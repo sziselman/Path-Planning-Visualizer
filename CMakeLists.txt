@@ -17,9 +17,13 @@ add_library(grid SHARED
     src/grid.cpp
 )
 
-# add_library(grid SHARED
-#     src/grid.cpp
-# )
+add_library(tile SHARED
+    src/tile.cpp
+)
+
+add_library(a_star SHARED
+    src/a_star.cpp
+)
     
 target_include_directories(visualizer PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
@@ -29,10 +33,20 @@ target_include_directories(grid PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
+target_include_directories(tile PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
+target_include_directories(a_star PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
 find_package(SFML COMPONENTS graphics)
 
 target_link_libraries(${PROJECT_NAME} PUBLIC 
     visualizer 
     grid
+    tile
+    a_star
     ${SFML_LIBRARIES} 
     sfml-graphics)

@@ -1,46 +1,5 @@
 #include "grid.h"
 
-using namespace std;
-
-
-Tile::Tile(int x, int y, int idx, sf::RectangleShape shape) : x(x), y(y), idx(idx), shape(shape) {
-}
-
-void Tile::setDefaultTile(void) {
-    // set default properties to tiles
-    isStart = false;
-    isGoal = false;
-    isObstacle = false;
-
-    shape.setFillColor(openTileColor);
-    shape.setOutlineColor(outlineTileColor);
-    shape.setOutlineThickness(tileOutlineThickness);
-}
-
-void Tile::setStartTile(void) {
-    isStart = true;
-    isGoal = false;
-    isObstacle = false;
-
-    shape.setFillColor(startTileColor);
-}
-
-void Tile::setGoalTile(void) {
-    isStart = false;
-    isGoal = true;
-    isObstacle = false;
-
-    shape.setFillColor(goalTileColor);
-}
-
-void Tile::setObstacleTile(void) {
-    isStart = false;
-    isGoal = false;
-    isObstacle = true;
-
-    shape.setFillColor(obstacleTileColor);
-}
-
 Grid::Grid(int width, int height, sf::RenderWindow& window, sf::Mouse& mouse) : width(width), height(height), 
                                                                                 window(window), mouse(mouse) {
     xTiles = width / tileDim;
@@ -105,7 +64,7 @@ void Grid::addObstacle(void) {
     }
 }
 
-void Grid::updateSearch(void) {
+void Grid::updateGrid(void) {
     int tileIdx = getTileIdxFromMousePos();
 
     // check if tile is start, goal, obstacle or neither
@@ -139,18 +98,10 @@ void Grid::setStartTile(void) {
     }
 
     // check if tile is start, obstacle, or goal
-    if (tileMap[tileIdx].isStart == true) {
-        cout << "already is start tile" << endl;
+    if (tileMap[tileIdx].isStart == true || tileMap[tileIdx].isGoal == true || tileMap[tileIdx].isObstacle == true) {
+        cout << "already is start, goal, or obstacle tile" << endl;
         return;
     } 
-    else if (tileMap[tileIdx].isGoal == true) {
-        cout << "already is goal tile" << endl;
-        return;
-    }
-    else if (tileMap[tileIdx].isObstacle == true) {
-        cout << "already is obstacle" << endl;
-        return;
-    }
     else {
         // update start tile info
         tileMap[startTileIdx].setDefaultTile();
@@ -175,18 +126,10 @@ void Grid::setGoalTile(void) {
     }
 
     // check if tile is start, obstacle, or goal
-    if (tileMap[tileIdx].isStart == true) {
-        cout << "already is start tile" << endl;
+    if (tileMap[tileIdx].isStart == true || tileMap[tileIdx].isGoal == true || tileMap[tileIdx].isObstacle == true) {
+        cout << "already is start, goal, or obstacle tile" << endl;
         return;
     } 
-    else if (tileMap[tileIdx].isGoal == true) {
-        cout << "already is goal tile" << endl;
-        return;
-    }
-    else if (tileMap[tileIdx].isObstacle == true) {
-        cout << "already is obstacle" << endl;
-        return;
-    }
     else {
         // update start tile info
         tileMap[goalTileIdx].setDefaultTile();
