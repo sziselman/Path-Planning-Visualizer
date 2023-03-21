@@ -6,6 +6,41 @@ using namespace std;
 Tile::Tile(int x, int y, int idx, sf::RectangleShape shape) : x(x), y(y), idx(idx), shape(shape) {
 }
 
+void Tile::setDefaultTile(void) {
+    // set default properties to tiles
+    isStart = false;
+    isGoal = false;
+    isObstacle = false;
+
+    shape.setFillColor(openTileColor);
+    shape.setOutlineColor(outlineTileColor);
+    shape.setOutlineThickness(tileOutlineThickness);
+}
+
+void Tile::setStartTile(void) {
+    isStart = true;
+    isGoal = false;
+    isObstacle = false;
+
+    shape.setFillColor(startTileColor);
+}
+
+void Tile::setGoalTile(void) {
+    isStart = false;
+    isGoal = true;
+    isObstacle = false;
+
+    shape.setFillColor(goalTileColor);
+}
+
+void Tile::setObstacleTile(void) {
+    isStart = false;
+    isGoal = false;
+    isObstacle = true;
+
+    shape.setFillColor(obstacleTileColor);
+}
+
 Grid::Grid(int width, int height, sf::RenderWindow& window, sf::Mouse& mouse) : width(width), height(height), 
                                                                                 window(window), mouse(mouse) {
     xTiles = width / tileDim;
@@ -18,6 +53,7 @@ Grid::Grid(int width, int height, sf::RenderWindow& window, sf::Mouse& mouse) : 
         sf::RectangleShape shape(sf::Vector2f(tileDim, tileDim));
         int x = i % xTiles;
         int y = i / xTiles;
+
         tileMap.push_back(Tile(x, y, i, shape));
     }
 
@@ -27,19 +63,15 @@ Grid::Grid(int width, int height, sf::RenderWindow& window, sf::Mouse& mouse) : 
         double y_loc = double(tileMap[i].y * tileDim);
 
         tileMap[i].shape.setPosition(x_loc, y_loc);
-        tileMap[i].shape.setFillColor(openTileColor);
-        tileMap[i].shape.setOutlineColor(outlineTileColor);
-        tileMap[i].shape.setOutlineThickness(tileOutlineThickness);
+        tileMap[i].setDefaultTile();
     }
 
     // set the start, goal positions
     startTileIdx = 0;
-    tileMap[startTileIdx].shape.setFillColor(startTileColor);
-    tileMap[startTileIdx].isStart = true;
+    tileMap[startTileIdx].setStartTile();
 
-    goalTileIdx = tileMap.size();
-    tileMap[goalTileIdx].shape.setFillColor(goalTileColor);
-    tileMap[goalTileIdx].isGoal = true;
+    goalTileIdx = tileMap.size()-1;
+    tileMap[goalTileIdx].setGoalTile();
 }
 
 Grid::~Grid() {}
@@ -68,8 +100,7 @@ void Grid::addObstacle(void) {
         return;
     }
     else {
-        tileMap[tileIdx].isObstacle = true;
-        tileMap[tileIdx].shape.setFillColor(obstacleTileColor);
+        tileMap[tileIdx].setObstacleTile();
         obstacleMap.push_back(tileMap[tileIdx]);
     }
 }
@@ -79,6 +110,7 @@ void Grid::updateSearch(void) {
 
     // check if tile is start, goal, obstacle or neither
     if (tileMap[tileIdx].isStart == true) {
+        cout << "setting new start tile" << endl;
         setStartTile();
     }
     else if (tileMap[tileIdx].isGoal == true) {
@@ -95,13 +127,38 @@ void Grid::updateSearch(void) {
 void Grid::setStartTile(void) {
     settingNewStart = true;
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    std::this_thread::sleep_for(std::chrono::milliseconds(300));
+
+    int tileIdx;
 
     while (settingNewStart == true) {
         if (mouse.isButtonPressed(sf::Mouse::Left)) {
+            tileIdx = getTileIdxFromMousePos();
             settingNewStart = false;
         }
     }
+
+    // check if tile is start, obstacle, or goal
+    if (tileMap[tileIdx].isStart == true) {
+        cout << "already is start tile" << endl;
+        return;
+    } 
+    else if (tileMap[tileIdx].isGoal == true) {
+        cout << "already is goal tile" << endl;
+        return;
+    }
+    else if (tileMap[tileIdx].isObstacle == true) {
+        cout << "already is obstacle" << endl;
+        return;
+    }
+    else {
+        // update start tile info
+        tileMap[startTileIdx].setDefaultTile();
+        tileMap[tileIdx].setStartTile();
+        startTileIdx = tileIdx;
+    }
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(300));
 }
 
 void Grid::setGoalTile(void) {
@@ -118,9 +175,26 @@ void Grid::setGoalTile(void) {
     }
 
     // check if tile is start, obstacle, or goal
-    if (tileMap[tileIdx].isStart != true || tileMap[tileIdx].isGoal != true || tileMap[tileIdx].isObstacle != true) {
-
+    if (tileMap[tileIdx].isStart == true) {
+        cout << "already is start tile" << endl;
+        return;
     } 
+    else if (tileMap[tileIdx].isGoal == true) {
+        cout << "already is goal tile" << endl;
+        return;
+    }
+    else if (tileMap[tileIdx].isObstacle == true) {
+        cout << "already is obstacle" << endl;
+        return;
+    }
+    else {
+        // update start tile info
+        tileMap[goalTileIdx].setDefaultTile();
+        tileMap[tileIdx].setGoalTile();
+        goalTileIdx = tileIdx;
+    }
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
 }
 
 void Grid::startSearch(void) {
