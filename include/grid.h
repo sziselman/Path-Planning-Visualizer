@@ -7,6 +7,18 @@
 
 using namespace std;
 
+class Tile {
+    public:
+        int x;
+        int y;
+        int idx;
+        sf::RectangleShape shape;
+        
+        Tile(int x, int y, int idx, sf::RectangleShape shape);
+
+        private:
+};
+
 class Grid {
     public:
         Grid(int width, int height, sf::RenderWindow& window, sf::Mouse& mouse);
@@ -16,29 +28,31 @@ class Grid {
         void addObstacle(void);
 
     private:
-        int width;
-        int height;
+        // window variables
+        double width;
+        double height;
 
+        // tile variables
         static constexpr double tileDim = 40;
-        int widthTiles;
-        int heightTiles;
+        int xTiles;
+        int yTiles;
+        int totalTiles;
 
+        // window, mouse object from the visualizer
         sf::RenderWindow& window;
         sf::Mouse& mouse;
 
-        std::vector<sf::RectangleShape> tileMap;
+        // information about all available tiles
+        std::vector<Tile> tileMap;
+        std::vector<Tile> obstacleMap;
         std::vector<double> startPos;
         std::vector<double> goalPos;
 
-        std::vector<sf::RectangleShape> obstacleMap;
-
+        // visual properties of tiles
         static constexpr double tileOutlineThickness = 1;
-
         sf::Color openTileColor = sf::Color(255, 240, 245);
         sf::Color outlineTileColor = sf::Color::Black;
         sf::Color startTileColor = sf::Color::Red;
         sf::Color goalTileColor = sf::Color(216, 178, 209);
         sf::Color obstacleTileColor = sf::Color(100, 27, 48);
-
-        void makeGrid(void);
 };
