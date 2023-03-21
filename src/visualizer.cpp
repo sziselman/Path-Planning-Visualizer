@@ -29,5 +29,9 @@ void Visualizer::display(void) {
             if (mouse.isButtonPressed(sf::Mouse::Right)) {
                 grid.addObstacle();
             }
+
+            if (mouse.isButtonPressed(sf::Mouse::Left)) {
+                grid.updateSearch();
+            }
         }
 }

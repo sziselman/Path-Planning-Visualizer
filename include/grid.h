@@ -3,20 +3,26 @@
 */
 
 #include <SFML/Graphics.hpp>
+#include <chrono>
+#include <thread>
+#include <cmath>
+#include <iostream>
 
 
 using namespace std;
 
-class Tile {
+struct Tile {
     public:
         int x;
         int y;
         int idx;
         sf::RectangleShape shape;
-        
-        Tile(int x, int y, int idx, sf::RectangleShape shape);
 
-        private:
+        bool isStart = false;
+        bool isGoal = false;
+        bool isObstacle = false;
+
+        Tile(int x, int y, int idx, sf::RectangleShape shape);
 };
 
 class Grid {
@@ -26,6 +32,7 @@ class Grid {
 
         void displayGrid(void);
         void addObstacle(void);
+        void updateSearch(void);
 
     private:
         // window variables
@@ -48,6 +55,9 @@ class Grid {
         std::vector<double> startPos;
         std::vector<double> goalPos;
 
+        bool settingNewStart = false;
+        bool settingNewGoal = false;
+
         // visual properties of tiles
         static constexpr double tileOutlineThickness = 1;
         sf::Color openTileColor = sf::Color(255, 240, 245);
@@ -55,4 +65,10 @@ class Grid {
         sf::Color startTileColor = sf::Color::Red;
         sf::Color goalTileColor = sf::Color(216, 178, 209);
         sf::Color obstacleTileColor = sf::Color(100, 27, 48);
+
+        // private helper functions
+        int getTileIdxFromMousePos(void);
+        void setStartTile(void);
+        void setGoalTile(void);
+        void startSearch(void);
 };

@@ -1,6 +1,3 @@
-#include <iostream>
-#include <cmath>
-
 #include "grid.h"
 
 using namespace std;
@@ -37,7 +34,10 @@ Grid::Grid(int width, int height, sf::RenderWindow& window, sf::Mouse& mouse) : 
 
     // set the start, goal positions
     tileMap.front().shape.setFillColor(startTileColor);
+    tileMap.front().isStart = true;
+
     tileMap.back().shape.setFillColor(goalTileColor);
+    tileMap.back().isGoal = true;
 }
 
 Grid::~Grid() {}
@@ -48,16 +48,73 @@ void Grid::displayGrid(void) {
     }
 }
 
-void Grid::addObstacle(void) {
+int Grid::getTileIdxFromMousePos(void) {
+    // determine position and index of tile
     auto pos = mouse.getPosition(window);
 
     int xTileLoc = ceil(pos.x / tileDim) -1;
     int yTileLoc = ceil(pos.y / tileDim) -1;
 
-    int tile_idx = yTileLoc * xTiles + xTileLoc;
-
-    tileMap[tile_idx].shape.setFillColor(obstacleTileColor);
-
-    obstacleMap.push_back(tileMap[tile_idx]);
+    return yTileLoc * xTiles + xTileLoc;
 }
 
+void Grid::addObstacle(void) {
+    int tileIdx = getTileIdxFromMousePos();
+
+    // check if tile is start or goal
+    if (tileMap[tileIdx].isStart == true || tileMap[tileIdx].isGoal == true) {
+        return;
+    }
+    else {
+        tileMap[tileIdx].isObstacle = true;
+        tileMap[tileIdx].shape.setFillColor(obstacleTileColor);
+        obstacleMap.push_back(tileMap[tileIdx]);
+    }
+}
+
+void Grid::updateSearch(void) {
+    int tileIdx = getTileIdxFromMousePos();
+
+    // check if tile is start, goal, obstacle or neither
+    if (tileMap[tileIdx].isStart == true) {
+        setStartTile();
+    }
+    else if (tileMap[tileIdx].isGoal == true) {
+        setGoalTile();
+    }
+    else if (tileMap[tileIdx].isObstacle == true) {
+        return;
+    }
+    else {
+        startSearch();
+    }
+}
+
+void Grid::setStartTile(void) {
+    settingNewStart = true;
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+
+    while (settingNewStart == true) {
+        if (mouse.isButtonPressed(sf::Mouse::Left)) {
+            cout << "new start tile :D" << endl;
+            settingNewStart = false;
+        }
+    }
+}
+
+void Grid::setGoalTile(void) {
+    settingNewGoal = true;
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+
+    while (settingNewGoal == true) {
+        if (mouse.isButtonPressed(sf::Mouse::Left)) {
+            cout << "new goal tile :D" << endl;
+            settingNewGoal = false;
+        }
+    }
+}
+
+void Grid::startSearch(void) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+}
