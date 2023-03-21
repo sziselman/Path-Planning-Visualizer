@@ -5,7 +5,7 @@ Grid::Grid(int width, int height, sf::RenderWindow& window, sf::Mouse& mouse) : 
     xTiles = width / tileDim;
     yTiles = height / tileDim;
 
-    int totalTiles = xTiles * yTiles;
+    totalTiles = xTiles * yTiles;
 
     // add tiles to map
     for (int i = 0; i < totalTiles; i++) {
