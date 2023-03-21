@@ -1,21 +1,12 @@
-#include "visualizer.hpp"
+#include <iostream>
+#include "visualizer.h"
+
 
 int main() {
-    sf::RenderWindow window(sf::VideoMode(200, 200), "SFML works!");
-    sf::CircleShape shape(100.f);
-    shape.setFillColor(sf::Color::Green);
+    using namespace std;
 
-    while (window.isOpen()) {
-        sf::Event event;
-        while (window.pollEvent(event))
-        {
-            if (event.type == sf::Event::Closed)
-                window.close();
-        }
+    Visualizer vis(1000, 1000);
+    vis.display();
 
-        window.clear();
-        window.draw(shape);
-        window.display();
-    }
     return 0;
 }
