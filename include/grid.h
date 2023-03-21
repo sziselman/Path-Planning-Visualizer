@@ -52,8 +52,8 @@ class Grid {
         // information about all available tiles
         std::vector<Tile> tileMap;
         std::vector<Tile> obstacleMap;
-        std::vector<double> startPos;
-        std::vector<double> goalPos;
+        int startTileIdx;
+        int goalTileIdx;
 
         bool settingNewStart = false;
         bool settingNewGoal = false;
