@@ -41,7 +41,7 @@ struct Tile {
         Tile();
         Tile(int x, int y, sf::RectangleShape &shape);
         ~Tile();
-        bool operator<(Tile &rhs);
+        bool operator<(const Tile &rhs) const;
         
         void setStartTile(void);
         void setGoalTile(void);

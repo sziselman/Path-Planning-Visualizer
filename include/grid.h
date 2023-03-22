@@ -7,7 +7,7 @@
 #include <thread>
 #include <cmath>
 #include <iostream>
-#include <unordered_set>
+#include <unordered_map>
 
 #include "tile.h"
 
@@ -45,11 +45,10 @@ class Grid {
         sf::Mouse& mouse;
 
         // information about all available tiles
-        std::vector<Tile> tileMap;
-
         std::pair<int, Tile> start;
         std::pair<int, Tile> goal;
         std::map<int, Tile> obstacles;
+        std::map<int, Tile> closed;     // closed list
 
         bool settingNewTile = false;
 

@@ -10,13 +10,9 @@ Tile::Tile(int x, int y, sf::RectangleShape &shape) : x(x), y(y), shape(shape) {
 
 Tile::~Tile() {}
 
-bool Tile::operator<(Tile &rhs) {
-    return f < rhs.f;
+bool Tile::operator<(const Tile &rhs) const {
+    return this->f < rhs.f;
 }
-
-// void Tile::getSuccessors(void) {
-//     neighbors = neighbors;
-// }
 
 void Tile::setStartTile(void) {
     // update booleans
@@ -77,5 +73,4 @@ void Tile::calculateH(const Tile &tile) {
 
 void Tile::calculateF(void) {
     f = g + h;
-    std::cout << "f value: " << f << std::endl;
 }

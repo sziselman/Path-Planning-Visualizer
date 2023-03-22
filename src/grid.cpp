@@ -45,8 +45,14 @@ void Grid::displayTiles(void) {
     window.draw(start.second.shape);
     window.draw(goal.second.shape);
 
+    // draw all obstacles
     for (const auto o : obstacles) {
         window.draw(o.second.shape);
+    }
+
+    // draw all visited nodes
+    for (const auto v : closed) {
+        window.draw(v.second.shape);
     }
 }
 
@@ -79,82 +85,89 @@ void Grid::updateStartGoalTiles(void) {
 void Grid::solveAStar(void) {
     std::this_thread::sleep_for(std::chrono::milliseconds(300));
     std::cout << "starting search" << std::endl;
-    std::map<int, Tile> open;       // open list
-    std::map<int, Tile> closed;     // closed list
+    std::unordered_map<int, Tile> open;       // open list
 
     // place start tile in open list with f=0
     open.insert(start);;
 
-    while (!open.empty()) {
-        std::cout << "new while" << std::endl;
+    int it = 0;
 
+    // while (!open.empty()) {
+    while (it < 5) {
+        // print out for open list
+        std::cout << " ------- updated open list --------" << std::endl;
         for (auto val : open) {
-            std::cout << val.first << ", " << val.second.f << std::endl;
+            std::cout << "tile " << val.first << ", f val " << val.second.f << std::endl;
         }
 
-        // pop q off open list, mark as visited
+        // pop q off open list, mark as visited, add to closed list
         auto q = open.begin();
         q->second.setVisited();
+        closed.insert(std::make_pair(q->first, q->second));
         open.erase(q);
 
-        window.draw(q->second.shape);
-        window.display();
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
-        // std::cout << "q is " << q->first << std::endl;
+        std::cout << "q is " << q->first << std::endl;
 
-        // // generate q's successors, add to open list
-        // auto successors = getSuccessors(q->first, q->second);
+        // generate q's successors, add to open list
+        auto successors = getSuccessors(q->first, q->second);
 
-        // for (auto successor : successors) {
+        for (auto successor : successors) {
+            // if successor is goal, stop search
+            if (successor.first == goal.first) {
+                std::cout << "goal found!" << std::endl;
+                break;
+            }
 
-        //     std::cout << "successor id " << successor.first << std::endl;
+            // calculate g, h and f for each successor
+            successor.second.calculateG(start.second);
+            successor.second.calculateH(goal.second);
+            successor.second.calculateF();
 
+            std::cout << "   successor id " << successor.first << " f value " << successor.second.f << std::endl;
 
-        //     // if successor is goal, stop search
-        //     if (successor.first == goal.first) {
-        //         std::cout << "goal found!" << std::endl;
-        //         break;
-        //     }
+            // if a tile in open has same position as successor
+            auto openIt = open.find(successor.first);
+            if (openIt != open.end()) {
+                std::cout << "   successor found in open list" << std::endl;
+                // if tile has lower f than successor, skip
+                if (openIt->second.f < successor.second.f) {
+                    std::cout << "   successor has larger f value, skipping" << std::endl;
+                    continue;
+                }
+            }
 
-        //     // calculate g, h and f for each successor
-        //     successor.second.calculateG(start.second);
-        //     successor.second.calculateH(goal.second);
-        //     successor.second.calculateF();
+            // if a tile in closed has same position as successor
+            auto closedIt = closed.find(successor.first);
+            if (closedIt != closed.end()) {
+                std::cout << "   successor found in closed list " << std::endl;
+                // if tile has lower f than successor, skip
+                if (closedIt->second.f < successor.second.f) {
+                    std::cout << "   successor has larger f value, skipping" << std::endl;
+                    continue;
+                }
+            }
 
-        //     // if a tile in open has same position as successor
-        //     auto openIt = open.find(successor.first);
-        //     if (openIt != open.end()) {
-        //         // if tile has lower f than successor, skip
-        //         if (openIt->second.f < successor.second.f) {
-        //             continue;
-        //         }
-        //     }
+            // otherwise, add tile to open list
+            std::cout << "adding successor " << successor.first << " to open list" << std::endl;
 
-        //     // if a tile in closed has same position as successor
-        //     auto closedIt = closed.find(successor.first);
-        //     if (closedIt != closed.end()) {
-        //         std::cout << "successor " << closedIt->first << " found in closed list " << std::endl;
-        //         // if tile has lower f than successor, skip
-        //         if (closedIt->second.f < successor.second.f) {
-        //             continue;
-        //         }
-        //     }
+            if (successor.second.f < open.begin()->second.f) {
+                std::cout << "successor has smaller f than first value in open map" << std::endl;
+                open.insert(open.end(), successor);
+            }
+            else {
+                open.insert(successor);
+            }
+        }
 
-        //     // otherwise, add tile to open list
-        //     std::cout << "adding tile " << successor.first << " to open list" << std::endl;
-        //     open.insert(successor);
-        // }
-
-        // // push q to the closed list
-        // closed.insert(std::make_pair(q->first, q->second));
-
-        // std::cout << "++++++ updated closed list ++++++++" << std::endl;
-        // for (auto c : closed) {
-        //     std::cout << "tile " << c.first << ", f val " << c.second.f << std::endl;
-        // }
+        std::cout << "++++++ updated closed list ++++++++" << std::endl;
+        for (auto c : closed) {
+            std::cout << "tile " << c.first << ", f val " << c.second.f << std::endl;
+        }
 
         break;
+        it++;
     }
 
     std::this_thread::sleep_for(std::chrono::milliseconds(300));

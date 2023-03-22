@@ -5,12 +5,8 @@
 
 using namespace std;
 
-Visualizer::Visualizer(int width, int height) : window(sf::VideoMode(width, height), "SFML works!"), 
-                                                grid(width, height, window, mouse) {
-    cout << "initializing path planning visualizer" << endl;
-
-    // algorithm()
-}
+Visualizer::Visualizer(int width, int height) : window(sf::VideoMode(width, height), "Path Planning Visualizer"), 
+                                                grid(width, height, window, mouse) {}
 
 Visualizer::~Visualizer() {}
 
