@@ -3,13 +3,13 @@
 */
 #include <SFML/Graphics.hpp>
 #include <iostream>
+#include <cfloat>
 
 
 struct Tile {
     public:
         int x;
         int y;
-        int idx;
         sf::RectangleShape shape;
 
         bool isStart = false;
@@ -25,8 +25,7 @@ struct Tile {
         std::vector<int> neighbors;
 
         // visual properties of tiles
-        static constexpr double tileOutlineThickness = 1;
-        sf::Color openTileColor = sf::Color(255, 240, 245);
+        static constexpr double outlineTileThickness = 1;
         sf::Color visitedTileColor = sf::Color(255, 179, 71);
         sf::Color visitingTileColor = sf::Color(195, 205, 230);
         sf::Color outlineTileColor = sf::Color::Black;
@@ -34,11 +33,14 @@ struct Tile {
         sf::Color goalTileColor = sf::Color(216, 178, 209);
         sf::Color obstacleTileColor = sf::Color(100, 27, 48);
 
-        Tile(int x, int y, int idx, sf::RectangleShape shape);
+        Tile();
+        Tile(int x, int y, sf::RectangleShape &shape);
+        ~Tile();
 
         void updateNeighbors(std::vector<int> neighbors);
-        void setDefaultTile(void);
+        
         void setStartTile(void);
         void setGoalTile(void);
         void setObstacleTile(void);
+        void setVisited(void);
 };

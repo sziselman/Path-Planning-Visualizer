@@ -7,6 +7,7 @@
 #include <thread>
 #include <cmath>
 #include <iostream>
+#include <unordered_set>
 
 #include "tile.h"
 
@@ -16,9 +17,12 @@ class Grid {
         Grid(int width, int height, sf::RenderWindow& window, sf::Mouse& mouse);
         ~Grid();
 
-        void displayGrid(void);
+        void displayDefaultGrid(void);
+        void displayTiles(void);
         void addObstacle(void);
-        void updateGrid(void);
+        void updateStartGoalTiles(void);
+
+        void solveAStar(void);
 
     private:
         // window variables
@@ -31,15 +35,21 @@ class Grid {
         int yTiles;
         int totalTiles;
 
+        // visual properties
+        static constexpr double outlineTileThickness = 1;
+        sf::Color openTileColor = sf::Color(255, 240, 245);
+        sf::Color outlineTileColor = sf::Color::Black;
+
         // window, mouse object from the visualizer
         sf::RenderWindow& window;
         sf::Mouse& mouse;
 
         // information about all available tiles
         std::vector<Tile> tileMap;
-        std::vector<Tile> obstacleMap;
-        int startTileIdx;
-        int goalTileIdx;
+
+        std::pair<int, Tile> start;
+        std::pair<int, Tile> goal;
+        std::map<int, Tile> obstacles;
 
         bool settingNewStart = false;
         bool settingNewGoal = false;

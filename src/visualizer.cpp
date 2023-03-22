@@ -8,13 +8,13 @@ using namespace std;
 Visualizer::Visualizer(int width, int height) : window(sf::VideoMode(width, height), "SFML works!"), 
                                                 grid(width, height, window, mouse) {
     cout << "initializing path planning visualizer" << endl;
+
+    // algorithm()
 }
 
 Visualizer::~Visualizer() {}
 
 void Visualizer::display(void) {
-    sf::CircleShape shape(500.f);
-    shape.setFillColor(sf::Color::Green);
 
     while (window.isOpen()) {
             sf::Event event;
@@ -23,7 +23,8 @@ void Visualizer::display(void) {
             }
 
             window.clear();
-            grid.displayGrid();
+            grid.displayDefaultGrid();
+            grid.displayTiles();
             window.display();
 
             if (mouse.isButtonPressed(sf::Mouse::Right)) {
@@ -31,11 +32,12 @@ void Visualizer::display(void) {
             }
 
             if (mouse.isButtonPressed(sf::Mouse::Left)) {
-                grid.updateGrid();
+                grid.updateStartGoalTiles();
             }
 
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter)) {
-                cout << "starting serach" << endl;
-            }
+            // if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter)) {
+            //     cout << "starting serach" << endl;
+            // }
+
         }
 }

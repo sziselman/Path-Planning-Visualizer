@@ -1,28 +1,24 @@
 #include "tile.h"
 
 
-Tile::Tile(int x, int y, int idx, sf::RectangleShape shape) : x(x), y(y), idx(idx), shape(shape) {
+Tile::Tile() {}
+
+Tile::Tile(int x, int y, sf::RectangleShape &shape) : x(x), y(y), shape(shape) {
+    shape.setOutlineColor(outlineTileColor);
+    shape.setOutlineThickness(outlineTileThickness);
 }
+
+Tile::~Tile() {}
 
 void Tile::updateNeighbors(std::vector<int> neighbors) {
     neighbors = neighbors;
-}
-
-void Tile::setDefaultTile(void) {
-    // set default properties to tiles
-    isStart = false;
-    isGoal = false;
-    isObstacle = false;
-
-    shape.setFillColor(openTileColor);
-    shape.setOutlineColor(outlineTileColor);
-    shape.setOutlineThickness(tileOutlineThickness);
 }
 
 void Tile::setStartTile(void) {
     isStart = true;
     isGoal = false;
     isObstacle = false;
+    isVisited = false;
 
     shape.setFillColor(startTileColor);
 }
@@ -31,6 +27,7 @@ void Tile::setGoalTile(void) {
     isStart = false;
     isGoal = true;
     isObstacle = false;
+    isVisited = false;
 
     shape.setFillColor(goalTileColor);
 }
@@ -41,4 +38,10 @@ void Tile::setObstacleTile(void) {
     isObstacle = true;
 
     shape.setFillColor(obstacleTileColor);
+}
+
+void Tile::setVisited(void) {
+    isVisited = true;
+
+    shape.setFillColor(visitedTileColor);
 }

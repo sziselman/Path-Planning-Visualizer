@@ -15,6 +15,7 @@ class Visualizer {
         void display(void);
 
     private:
+        bool setDefaultDisplay = false;
         sf::RenderWindow window;
         sf::Mouse mouse;
 

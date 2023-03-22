@@ -8,40 +8,98 @@ Grid::Grid(int width, int height, sf::RenderWindow& window, sf::Mouse& mouse) : 
 
     totalTiles = xTiles * yTiles;
 
-    // add tiles to map
-    for (int i = 0; i < totalTiles; i++) {
-        sf::RectangleShape shape(sf::Vector2f(tileDim, tileDim));
-        int x = i % xTiles;
-        int y = i / xTiles;
+    // initialize default start tile
+    int defaultStartIdx = 0;
+    int defaultStartX = defaultStartIdx % xTiles;
+    int defaultStartY = defaultStartIdx / xTiles;
+    sf::RectangleShape startShape(sf::Vector2f(tileDim, tileDim));
+    startShape.setPosition(defaultStartX * tileDim, defaultStartY * tileDim);
+    Tile startTile(defaultStartX, defaultStartY, startShape);
+    startTile.setStartTile();
 
-        tileMap.push_back(Tile(x, y, i, shape));
-    }
+    start = {defaultStartIdx, startTile};
 
-    // set properties of each tile in map, update neighbors
-    for (int i = 0; i < totalTiles; i++) {
-        double x_loc = double(tileMap[i].x * tileDim);
-        double y_loc = double(tileMap[i].y * tileDim);
+    // initialize default goal tile
+    int defaultGoalIdx = totalTiles - 1;
+    int defaultGoalX = defaultGoalIdx % xTiles;
+    int defaultGoalY = defaultGoalIdx / xTiles;
+    sf::RectangleShape goalShape(sf::Vector2f(tileDim, tileDim));
+    goalShape.setPosition(defaultGoalX * tileDim, defaultGoalY * tileDim);
+    Tile goalTile(defaultGoalX, defaultGoalY, goalShape);
+    goalTile.setGoalTile();
 
-        tileMap[i].updateNeighbors(getNeighborsFromTilePos(tileMap[i].x, tileMap[i].y));
-
-        tileMap[i].shape.setPosition(x_loc, y_loc);
-        tileMap[i].setDefaultTile();
-    }
-
-    // set the start, goal positions
-    startTileIdx = 0;
-    tileMap[startTileIdx].setStartTile();
-
-    goalTileIdx = tileMap.size()-1;
-    tileMap[goalTileIdx].setGoalTile();
+    goal = {defaultGoalIdx, goalTile};
 }
 
 Grid::~Grid() {}
 
-void Grid::displayGrid(void) {
-    for (auto tile : tileMap) {
-        window.draw(tile.shape);
+void Grid::displayDefaultGrid(void) {
+    // set visualization for tiles
+    for (int i = 0; i < totalTiles; i++) {
+        sf::RectangleShape shape(sf::Vector2f(tileDim, tileDim));
+        
+        double x = (i % xTiles) * tileDim;
+        double y = (i / xTiles) * tileDim;
+
+        shape.setFillColor(openTileColor);
+        shape.setOutlineColor(outlineTileColor);
+        shape.setOutlineThickness(outlineTileThickness);
+        shape.setPosition(x, y);
+        window.draw(shape);
     }
+}
+
+void Grid::displayTiles(void) {
+    window.draw(start.second.shape);
+    window.draw(goal.second.shape);
+
+    for (const auto o : obstacles) {
+        window.draw(o.second.shape);
+    }
+}
+
+void Grid::addObstacle(void) {
+    // TODO : add check to avoid making start/end tiles obstacles
+    int tileIdx = getTileIdxFromMousePos();
+
+    if (obstacles.find(tileIdx) == obstacles.end()) {
+        int x = tileIdx % xTiles;
+        int y = tileIdx / xTiles;
+
+        sf::RectangleShape obstShape(sf::Vector2f(tileDim, tileDim));
+        obstShape.setPosition(x * tileDim, y * tileDim);
+
+        Tile obstTile(x, y, obstShape);
+        obstTile.setObstacleTile();
+
+        obstacles[tileIdx] = obstTile;
+    }  
+}
+
+void Grid::updateStartGoalTiles(void) {
+    int tileIdx = getTileIdxFromMousePos();
+
+    // check if tile is start, goal, obstacle or neither
+    if (tileIdx == start.first) {
+        std::cout << "setting new start tile" << std::endl;
+        // setStartTile();
+    }
+    else if (tileIdx == goal.first) {
+        std::cout << "setting new goal tile" << std::endl;
+        // setGoalTile();
+    }
+    else if (obstacles.find(tileIdx) != obstacles.end()) {
+        std::cout << "can't make an obstacle a start/goal tile" << std::endl;
+        return;
+    }
+    else {
+        startSearch();
+    }
+    return;
+}
+
+void Grid::solveAStar(void) {
+    return;
 }
 
 int Grid::getTileIdxFromMousePos(void) {
@@ -100,93 +158,64 @@ bool Grid::isOutOfBounds(int x, int y) {
     return true;
 }
 
-void Grid::addObstacle(void) {
-    int tileIdx = getTileIdxFromMousePos();
-
-    // check if tile is start or goal
-    if (tileMap[tileIdx].isStart == true || tileMap[tileIdx].isGoal == true) {
-        return;
-    }
-    else {
-        tileMap[tileIdx].setObstacleTile();
-        obstacleMap.push_back(tileMap[tileIdx]);
-    }
-}
-
-void Grid::updateGrid(void) {
-    int tileIdx = getTileIdxFromMousePos();
-
-    // check if tile is start, goal, obstacle or neither
-    if (tileMap[tileIdx].isStart == true) {
-        std::cout << "setting new start tile" << std::endl;
-        setStartTile();
-    }
-    else if (tileMap[tileIdx].isGoal == true) {
-        setGoalTile();
-    }
-    else if (tileMap[tileIdx].isObstacle == true) {
-        return;
-    }
-    else {
-        startSearch();
-    }
-}
-
 void Grid::setStartTile(void) {
-    settingNewStart = true;
+    // settingNewStart = true;
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(300));
+    // std::this_thread::sleep_for(std::chrono::milliseconds(300));
 
-    int tileIdx;
+    // int tileIdx;
 
-    while (settingNewStart == true) {
-        if (mouse.isButtonPressed(sf::Mouse::Left)) {
-            tileIdx = getTileIdxFromMousePos();
-            settingNewStart = false;
-        }
-    }
+    // while (settingNewStart == true) {
+    //     if (mouse.isButtonPressed(sf::Mouse::Left)) {
+    //         tileIdx = getTileIdxFromMousePos();
+    //         settingNewStart = false;
+    //     }
+    // }
 
-    // check if tile is start, obstacle, or goal
-    if (tileMap[tileIdx].isStart == true || tileMap[tileIdx].isGoal == true || tileMap[tileIdx].isObstacle == true) {
-        std::cout << "already is start, goal, or obstacle tile" << std::endl;
-        return;
-    } 
-    else {
-        // update start tile info
-        tileMap[startTileIdx].setDefaultTile();
-        tileMap[tileIdx].setStartTile();
-        startTileIdx = tileIdx;
-    }
+    // // check if tile is start, obstacle, or goal
+    // if (tileMap[tileIdx].isStart == true || tileMap[tileIdx].isGoal == true || tileMap[tileIdx].isObstacle == true) {
+    //     std::cout << "already is start, goal, or obstacle tile" << std::endl;
+    //     return;
+    // } 
+    // else {
+    //     // update start tile info
+    //     tileMap[startTileIdx].setDefaultTile();
+    //     tileMap[tileIdx].setStartTile();
+    //     startTileIdx = tileIdx;
+    // }
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(300));
+    // std::this_thread::sleep_for(std::chrono::milliseconds(300));
+
+    return;
 }
 
 void Grid::setGoalTile(void) {
-    settingNewGoal = true;
-    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    // settingNewGoal = true;
+    // std::this_thread::sleep_for(std::chrono::milliseconds(200));
 
-    int tileIdx;
+    // int tileIdx;
 
-    while (settingNewGoal == true) {
-        if (mouse.isButtonPressed(sf::Mouse::Left)) {
-            tileIdx = getTileIdxFromMousePos();
-            settingNewGoal = false;
-        }
-    }
+    // while (settingNewGoal == true) {
+    //     if (mouse.isButtonPressed(sf::Mouse::Left)) {
+    //         tileIdx = getTileIdxFromMousePos();
+    //         settingNewGoal = false;
+    //     }
+    // }
 
-    // check if tile is start, obstacle, or goal
-    if (tileMap[tileIdx].isStart == true || tileMap[tileIdx].isGoal == true || tileMap[tileIdx].isObstacle == true) {
-        std::cout << "already is start, goal, or obstacle tile" << std::endl;
-        return;
-    } 
-    else {
-        // update start tile info
-        tileMap[goalTileIdx].setDefaultTile();
-        tileMap[tileIdx].setGoalTile();
-        goalTileIdx = tileIdx;
-    }
+    // // check if tile is start, obstacle, or goal
+    // if (tileMap[tileIdx].isStart == true || tileMap[tileIdx].isGoal == true || tileMap[tileIdx].isObstacle == true) {
+    //     std::cout << "already is start, goal, or obstacle tile" << std::endl;
+    //     return;
+    // } 
+    // else {
+    //     // update start tile info
+    //     tileMap[goalTileIdx].setDefaultTile();
+    //     tileMap[tileIdx].setGoalTile();
+    //     goalTileIdx = tileIdx;
+    // }
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    // std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    return;
 }
 
 void Grid::startSearch(void) {
