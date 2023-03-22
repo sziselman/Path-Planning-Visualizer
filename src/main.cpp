@@ -5,7 +5,10 @@
 int main() {
 
     Visualizer vis(1000, 1000);
-    vis.display();
+    while (!vis.quit()) {
+        vis.render();
+        vis.update();
+    }
 
     return 0;
 }

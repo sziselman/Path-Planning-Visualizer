@@ -4,6 +4,7 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include <cfloat>
+#include <cmath>
 
 
 struct Tile {
@@ -21,8 +22,12 @@ struct Tile {
         double g;   // cost to get from start to current using path taken
         double h;   // estimated movement cost from current to goal
         double f;   // g + h
+        static constexpr double ca = 1.;        // cost of adjacent movement
+        static constexpr double cd = 1.41421;   // cost of diagonal movements
 
-        std::vector<int> neighbors;
+        // std::vector<int> neighbors;
+        std::map<int, Tile> successors;
+        std::map<int, Tile> parents;
 
         // visual properties of tiles
         static constexpr double outlineTileThickness = 1;
@@ -36,11 +41,16 @@ struct Tile {
         Tile();
         Tile(int x, int y, sf::RectangleShape &shape);
         ~Tile();
-
-        void updateNeighbors(std::vector<int> neighbors);
+        bool operator<(Tile &rhs);
         
         void setStartTile(void);
         void setGoalTile(void);
         void setObstacleTile(void);
         void setVisited(void);
+
+        void addParent(const int idx, Tile &tile);
+
+        void calculateG(const Tile &tile);
+        void calculateH(const Tile &tile);
+        void calculateF(void);
 };

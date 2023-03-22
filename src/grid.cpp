@@ -10,22 +10,14 @@ Grid::Grid(int width, int height, sf::RenderWindow& window, sf::Mouse& mouse) : 
 
     // initialize default start tile
     int defaultStartIdx = 0;
-    int defaultStartX = defaultStartIdx % xTiles;
-    int defaultStartY = defaultStartIdx / xTiles;
-    sf::RectangleShape startShape(sf::Vector2f(tileDim, tileDim));
-    startShape.setPosition(defaultStartX * tileDim, defaultStartY * tileDim);
-    Tile startTile(defaultStartX, defaultStartY, startShape);
+    Tile startTile = makeTileFromIdx(defaultStartIdx);
     startTile.setStartTile();
 
     start = {defaultStartIdx, startTile};
 
     // initialize default goal tile
     int defaultGoalIdx = totalTiles - 1;
-    int defaultGoalX = defaultGoalIdx % xTiles;
-    int defaultGoalY = defaultGoalIdx / xTiles;
-    sf::RectangleShape goalShape(sf::Vector2f(tileDim, tileDim));
-    goalShape.setPosition(defaultGoalX * tileDim, defaultGoalY * tileDim);
-    Tile goalTile(defaultGoalX, defaultGoalY, goalShape);
+    Tile goalTile = makeTileFromIdx(defaultGoalIdx);
     goalTile.setGoalTile();
 
     goal = {defaultGoalIdx, goalTile};
@@ -59,17 +51,14 @@ void Grid::displayTiles(void) {
 }
 
 void Grid::addObstacle(void) {
-    // TODO : add check to avoid making start/end tiles obstacles
     int tileIdx = getTileIdxFromMousePos();
 
+    if (tileIdx == start.first || tileIdx == goal.first) {
+        return;
+    }
+
     if (obstacles.find(tileIdx) == obstacles.end()) {
-        int x = tileIdx % xTiles;
-        int y = tileIdx / xTiles;
-
-        sf::RectangleShape obstShape(sf::Vector2f(tileDim, tileDim));
-        obstShape.setPosition(x * tileDim, y * tileDim);
-
-        Tile obstTile(x, y, obstShape);
+        Tile obstTile = makeTileFromIdx(tileIdx);
         obstTile.setObstacleTile();
 
         obstacles[tileIdx] = obstTile;
@@ -79,27 +68,104 @@ void Grid::addObstacle(void) {
 void Grid::updateStartGoalTiles(void) {
     int tileIdx = getTileIdxFromMousePos();
 
-    // check if tile is start, goal, obstacle or neither
     if (tileIdx == start.first) {
-        std::cout << "setting new start tile" << std::endl;
-        // setStartTile();
+        setNewTile(true);
     }
     else if (tileIdx == goal.first) {
-        std::cout << "setting new goal tile" << std::endl;
-        // setGoalTile();
+        setNewTile(false);
     }
-    else if (obstacles.find(tileIdx) != obstacles.end()) {
-        std::cout << "can't make an obstacle a start/goal tile" << std::endl;
-        return;
-    }
-    else {
-        startSearch();
-    }
-    return;
 }
 
 void Grid::solveAStar(void) {
-    return;
+    std::this_thread::sleep_for(std::chrono::milliseconds(300));
+    std::cout << "starting search" << std::endl;
+    std::map<int, Tile> open;       // open list
+    std::map<int, Tile> closed;     // closed list
+
+    // place start tile in open list with f=0
+    open.insert(start);;
+
+    while (!open.empty()) {
+        std::cout << "new while" << std::endl;
+
+        for (auto val : open) {
+            std::cout << val.first << ", " << val.second.f << std::endl;
+        }
+
+        // pop q off open list, mark as visited
+        auto q = open.begin();
+        q->second.setVisited();
+        open.erase(q);
+
+        window.draw(q->second.shape);
+        window.display();
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+
+        // std::cout << "q is " << q->first << std::endl;
+
+        // // generate q's successors, add to open list
+        // auto successors = getSuccessors(q->first, q->second);
+
+        // for (auto successor : successors) {
+
+        //     std::cout << "successor id " << successor.first << std::endl;
+
+
+        //     // if successor is goal, stop search
+        //     if (successor.first == goal.first) {
+        //         std::cout << "goal found!" << std::endl;
+        //         break;
+        //     }
+
+        //     // calculate g, h and f for each successor
+        //     successor.second.calculateG(start.second);
+        //     successor.second.calculateH(goal.second);
+        //     successor.second.calculateF();
+
+        //     // if a tile in open has same position as successor
+        //     auto openIt = open.find(successor.first);
+        //     if (openIt != open.end()) {
+        //         // if tile has lower f than successor, skip
+        //         if (openIt->second.f < successor.second.f) {
+        //             continue;
+        //         }
+        //     }
+
+        //     // if a tile in closed has same position as successor
+        //     auto closedIt = closed.find(successor.first);
+        //     if (closedIt != closed.end()) {
+        //         std::cout << "successor " << closedIt->first << " found in closed list " << std::endl;
+        //         // if tile has lower f than successor, skip
+        //         if (closedIt->second.f < successor.second.f) {
+        //             continue;
+        //         }
+        //     }
+
+        //     // otherwise, add tile to open list
+        //     std::cout << "adding tile " << successor.first << " to open list" << std::endl;
+        //     open.insert(successor);
+        // }
+
+        // // push q to the closed list
+        // closed.insert(std::make_pair(q->first, q->second));
+
+        // std::cout << "++++++ updated closed list ++++++++" << std::endl;
+        // for (auto c : closed) {
+        //     std::cout << "tile " << c.first << ", f val " << c.second.f << std::endl;
+        // }
+
+        break;
+    }
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(300));
+}
+
+Tile Grid::makeTileFromIdx(int idx) {
+    int x = idx % xTiles;
+    int y = idx / xTiles;
+    sf::RectangleShape shape(sf::Vector2f(tileDim, tileDim));
+    shape.setPosition(x * tileDim, y * tileDim);
+    return Tile(x, y, shape);
 }
 
 int Grid::getTileIdxFromMousePos(void) {
@@ -116,35 +182,8 @@ int Grid::getTileIdxFromTilePos(int x, int y) {
     return y * xTiles + x;
 }
 
-std::vector<std::pair<int, int>> Grid::getNeighborIdxsFromTilePos(int x, int y) {
-    std::vector<std::pair<int, int>> neighborIdxs;
 
-    neighborIdxs.push_back(std::make_pair(x-1, y-1));   // north-west
-    neighborIdxs.push_back(std::make_pair(x, y-1));     // north
-    neighborIdxs.push_back(std::make_pair(x+1, y-1));   // north-east
-    neighborIdxs.push_back(std::make_pair(x+1, y));     // east
-    neighborIdxs.push_back(std::make_pair(x+1, y+1));   // south-east
-    neighborIdxs.push_back(std::make_pair(x, y+1));     // south
-    neighborIdxs.push_back(std::make_pair(x-1, y+1));   // south-west
-    neighborIdxs.push_back(std::make_pair(x-1, y));     // west
-
-    return neighborIdxs;
-}
-
-std::vector<int> Grid::getNeighborsFromTilePos(int x, int y) {
-    std::vector<int> neighbors;
-
-    // loop through pairs, if in bounds add to list of neighbors
-    for (auto idxPair : getNeighborIdxsFromTilePos(x, y)) {
-        if (isOutOfBounds(idxPair.first, idxPair.second) != false) {
-            neighbors.push_back(getTileIdxFromTilePos(idxPair.first, idxPair.second));
-        }
-    }
-
-    return neighbors;
-}
-
-bool Grid::isOutOfBounds(int x, int y) {
+bool Grid::isInBounds(int x, int y) {
     // check if x is in bounds
     bool isXInBounds = (x == std::max(0, std::min(x, xTiles-1)));
     if (isXInBounds == false) {
@@ -158,66 +197,65 @@ bool Grid::isOutOfBounds(int x, int y) {
     return true;
 }
 
-void Grid::setStartTile(void) {
-    // settingNewStart = true;
+void Grid::setNewTile(bool isStart) {
+    settingNewTile = true;
 
-    // std::this_thread::sleep_for(std::chrono::milliseconds(300));
+    std::this_thread::sleep_for(std::chrono::milliseconds(300));
 
-    // int tileIdx;
+    int tileIdx;
 
-    // while (settingNewStart == true) {
-    //     if (mouse.isButtonPressed(sf::Mouse::Left)) {
-    //         tileIdx = getTileIdxFromMousePos();
-    //         settingNewStart = false;
-    //     }
-    // }
+    while (settingNewTile == true) {
+        if (mouse.isButtonPressed(sf::Mouse::Left)) {
+            tileIdx = getTileIdxFromMousePos();
+            
+            if (tileIdx != start.first && tileIdx != goal.first) {
+                if (obstacles.find(tileIdx) == obstacles.end()) {
+                    std::cout << "selected new start tile that is neither previous start, goal, or obstacle" << std::endl;
+                    settingNewTile = false;
+                }
+            }
+        }
+    }
 
-    // // check if tile is start, obstacle, or goal
-    // if (tileMap[tileIdx].isStart == true || tileMap[tileIdx].isGoal == true || tileMap[tileIdx].isObstacle == true) {
-    //     std::cout << "already is start, goal, or obstacle tile" << std::endl;
-    //     return;
-    // } 
-    // else {
-    //     // update start tile info
-    //     tileMap[startTileIdx].setDefaultTile();
-    //     tileMap[tileIdx].setStartTile();
-    //     startTileIdx = tileIdx;
-    // }
+    // update start tile info
+    Tile newTile = makeTileFromIdx(tileIdx);
 
-    // std::this_thread::sleep_for(std::chrono::milliseconds(300));
+    if (isStart == true) {
+        newTile.setStartTile();
+        start = {tileIdx, newTile};
+    }
+    else {
+        newTile.setGoalTile();
+        goal = {tileIdx, newTile};
+    }
 
-    return;
+    std::this_thread::sleep_for(std::chrono::milliseconds(300));
 }
 
-void Grid::setGoalTile(void) {
-    // settingNewGoal = true;
-    // std::this_thread::sleep_for(std::chrono::milliseconds(200));
+std::map<int, Tile> Grid::getSuccessors(int idx, Tile &q) {
+    std::vector<std::pair<int, int>> successorPoses;
+    
+    successorPoses.push_back(std::make_pair(q.x-1, q.y-1));     // north-west
+    successorPoses.push_back(std::make_pair(q.x, q.y-1));       // north
+    successorPoses.push_back(std::make_pair(q.x+1, q.y-1));       // north-east
+    successorPoses.push_back(std::make_pair(q.x+1, q.y));         // east
+    successorPoses.push_back(std::make_pair(q.x+1, q.y+1));       // south-east
+    successorPoses.push_back(std::make_pair(q.x, q.y+1));         // south
+    successorPoses.push_back(std::make_pair(q.x-1, q.y+1));       // south-west
+    successorPoses.push_back(std::make_pair(q.x-1, q.y));         // west
 
-    // int tileIdx;
+    std::map<int, Tile> successors;
 
-    // while (settingNewGoal == true) {
-    //     if (mouse.isButtonPressed(sf::Mouse::Left)) {
-    //         tileIdx = getTileIdxFromMousePos();
-    //         settingNewGoal = false;
-    //     }
-    // }
+    for (auto pos : successorPoses) {
+        // check if pos is in bounds
+        if (isInBounds(pos.first, pos.second)) {
+            // make the tile and add to successors
+            int idx = getTileIdxFromTilePos(pos.first, pos.second);
+            Tile tile = makeTileFromIdx(idx);
+            tile.addParent(idx, q);
+            successors.insert({idx, tile});
+        }
+    }
 
-    // // check if tile is start, obstacle, or goal
-    // if (tileMap[tileIdx].isStart == true || tileMap[tileIdx].isGoal == true || tileMap[tileIdx].isObstacle == true) {
-    //     std::cout << "already is start, goal, or obstacle tile" << std::endl;
-    //     return;
-    // } 
-    // else {
-    //     // update start tile info
-    //     tileMap[goalTileIdx].setDefaultTile();
-    //     tileMap[tileIdx].setGoalTile();
-    //     goalTileIdx = tileIdx;
-    // }
-
-    // std::this_thread::sleep_for(std::chrono::milliseconds(200));
-    return;
-}
-
-void Grid::startSearch(void) {
-    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    return successors;
 }

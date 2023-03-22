@@ -12,9 +12,13 @@ class Visualizer {
         Visualizer(int width, int height);
         ~Visualizer();
 
-        void display(void);
+        // void display(void);
+        void render(void);
+        void update(void);
+        bool quit(void);
 
     private:
+        bool solveSearch = false;
         bool setDefaultDisplay = false;
         sf::RenderWindow window;
         sf::Mouse mouse;

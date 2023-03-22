@@ -51,16 +51,15 @@ class Grid {
         std::pair<int, Tile> goal;
         std::map<int, Tile> obstacles;
 
-        bool settingNewStart = false;
-        bool settingNewGoal = false;
+        bool settingNewTile = false;
 
         // private helper functions
+        Tile makeTileFromIdx(int idx);
         int getTileIdxFromMousePos(void);
         int getTileIdxFromTilePos(int x, int y);
-        std::vector<std::pair<int, int>> getNeighborIdxsFromTilePos(int x, int y);
-        std::vector<int> getNeighborsFromTilePos(int x, int y);
-        bool isOutOfBounds(int x, int y);
-        void setStartTile(void);
-        void setGoalTile(void);
-        void startSearch(void);
+        bool isInBounds(int x, int y);
+        void setNewTile(bool isStart);
+
+        // a* private functions
+        std::map<int, Tile> getSuccessors(int idx, Tile &q);
 };

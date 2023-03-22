@@ -14,20 +14,15 @@ Visualizer::Visualizer(int width, int height) : window(sf::VideoMode(width, heig
 
 Visualizer::~Visualizer() {}
 
-void Visualizer::display(void) {
+void Visualizer::render(void) {
+    grid.displayDefaultGrid();
+    grid.displayTiles();
+    window.display();
+}
 
-    while (window.isOpen()) {
-            sf::Event event;
-            while (window.pollEvent(event)) {
-                if (event.type == sf::Event::Closed) window.close();
-            }
-
-            window.clear();
-            grid.displayDefaultGrid();
-            grid.displayTiles();
-            window.display();
-
-            if (mouse.isButtonPressed(sf::Mouse::Right)) {
+void Visualizer::update(void) {
+    if (!solveSearch) {
+        if (mouse.isButtonPressed(sf::Mouse::Right)) {
                 grid.addObstacle();
             }
 
@@ -35,9 +30,25 @@ void Visualizer::display(void) {
                 grid.updateStartGoalTiles();
             }
 
-            // if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter)) {
-            //     cout << "starting serach" << endl;
-            // }
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter)) {
+                solveSearch = true;
+            }
+    }
+    else {
+        grid.solveAStar();
+        solveSearch = false;
+    }
 
+    window.clear();
+}
+
+bool Visualizer::quit(void) {
+    sf::Event event;
+    while(window.pollEvent(event)) {
+        if (event.type == sf::Event::Closed) {
+            window.close();
+            return true;
         }
+    }
+    return false;
 }
