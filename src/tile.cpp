@@ -4,6 +4,10 @@
 Tile::Tile(int x, int y, int idx, sf::RectangleShape shape) : x(x), y(y), idx(idx), shape(shape) {
 }
 
+void Tile::updateNeighbors(std::vector<int> neighbors) {
+    neighbors = neighbors;
+}
+
 void Tile::setDefaultTile(void) {
     // set default properties to tiles
     isStart = false;

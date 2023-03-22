@@ -3,7 +3,6 @@
 
 
 int main() {
-    using namespace std;
 
     Visualizer vis(1000, 1000);
     vis.display();

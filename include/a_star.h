@@ -3,9 +3,19 @@
 */
 #include <iostream>
 
+#include "grid.h"
+
 
 class AStar {
     public:
+        AStar(int startTileIdx, int goalTileIdx, std::vector<Tile> tileMap);
+
+
     private:
-        AStar();
+        int startTileIdx;
+        int goalTileIdx;
+        std::vector<Tile> tileMap;
+
+        std::unordered_set<int> openList;
+        std::map<int, bool> closedList;
 };

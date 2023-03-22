@@ -11,8 +11,6 @@
 #include "tile.h"
 
 
-using namespace std;
-
 class Grid {
     public:
         Grid(int width, int height, sf::RenderWindow& window, sf::Mouse& mouse);
@@ -48,6 +46,10 @@ class Grid {
 
         // private helper functions
         int getTileIdxFromMousePos(void);
+        int getTileIdxFromTilePos(int x, int y);
+        std::vector<std::pair<int, int>> getNeighborIdxsFromTilePos(int x, int y);
+        std::vector<int> getNeighborsFromTilePos(int x, int y);
+        bool isOutOfBounds(int x, int y);
         void setStartTile(void);
         void setGoalTile(void);
         void startSearch(void);
