@@ -9,19 +9,27 @@
 
 class Visualizer {
     public:
+        /// @brief Constructor for Visualizer class
+        /// @param width The width of the window
+        /// @param height The height of the window
         Visualizer(int width, int height);
+
+        /// @brief Destructor for Visualizer class
         ~Visualizer();
 
-        // void display(void);
-        void render(void);
-        void update(void);
-        bool quit(void);
+        /// @brief Render all drawings to the window
+        void render();
+
+        /// @brief Updates the state of the visualizer
+        void update();
+
+        /// @brief Triggers an event to quit if the user closes the window
+        /// @return True if the user closes the window, False if not
+        bool quit();
 
     private:
-        bool solveSearch = false;
-        bool setDefaultDisplay = false;
         sf::RenderWindow window;
         sf::Mouse mouse;
-
         Grid grid;
+        bool solveSearch = false;
 };
