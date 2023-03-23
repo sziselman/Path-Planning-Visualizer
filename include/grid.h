@@ -7,7 +7,7 @@
 #include <thread>
 #include <cmath>
 #include <iostream>
-#include <unordered_map>
+#include <set>
 
 #include "tile.h"
 
@@ -45,20 +45,22 @@ class Grid {
         sf::Mouse& mouse;
 
         // information about all available tiles
-        std::pair<int, Tile> start;
-        std::pair<int, Tile> goal;
-        std::map<int, Tile> obstacles;
-        std::map<int, Tile> closed;     // closed list
+        std::pair<int, Tile*> start;
+        std::pair<int, Tile*> goal;
+        std::map<int, Tile*> tileMap;
+        std::set<int> closed;
+
+        std::map<int, Tile*> obstacles;
 
         bool settingNewTile = false;
 
         // private helper functions
-        Tile makeTileFromIdx(int idx);
+        Tile* makeTileFromIdx(int idx);
         int getTileIdxFromMousePos(void);
         int getTileIdxFromTilePos(int x, int y);
         bool isInBounds(int x, int y);
         void setNewTile(bool isStart);
 
         // a* private functions
-        std::map<int, Tile> getSuccessors(int idx, Tile &q);
+        std::vector<int> getSuccessors(int idx);
 };

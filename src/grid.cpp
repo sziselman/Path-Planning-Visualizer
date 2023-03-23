@@ -6,19 +6,22 @@ Grid::Grid(int width, int height, sf::RenderWindow& window, sf::Mouse& mouse) : 
     xTiles = width / tileDim;
     yTiles = height / tileDim;
 
+    std::cout << "x tiles " << xTiles << std::endl;
+    std::cout << "y tiles " << yTiles << std::endl;
+
     totalTiles = xTiles * yTiles;
 
     // initialize default start tile
     int defaultStartIdx = 0;
-    Tile startTile = makeTileFromIdx(defaultStartIdx);
-    startTile.setStartTile();
+    Tile* startTile = makeTileFromIdx(defaultStartIdx);
+    startTile->setStartTile();
 
     start = {defaultStartIdx, startTile};
 
     // initialize default goal tile
     int defaultGoalIdx = totalTiles - 1;
-    Tile goalTile = makeTileFromIdx(defaultGoalIdx);
-    goalTile.setGoalTile();
+    Tile* goalTile = makeTileFromIdx(defaultGoalIdx);
+    goalTile->setGoalTile();
 
     goal = {defaultGoalIdx, goalTile};
 }
@@ -42,17 +45,17 @@ void Grid::displayDefaultGrid(void) {
 }
 
 void Grid::displayTiles(void) {
-    window.draw(start.second.shape);
-    window.draw(goal.second.shape);
+    window.draw(start.second->shape);
+    window.draw(goal.second->shape);
 
     // draw all obstacles
     for (const auto o : obstacles) {
-        window.draw(o.second.shape);
+        window.draw(o.second->shape);
     }
 
     // draw all visited nodes
-    for (const auto v : closed) {
-        window.draw(v.second.shape);
+    for (const auto c : closed) {
+        window.draw(tileMap[c]->shape);
     }
 }
 
@@ -64,8 +67,8 @@ void Grid::addObstacle(void) {
     }
 
     if (obstacles.find(tileIdx) == obstacles.end()) {
-        Tile obstTile = makeTileFromIdx(tileIdx);
-        obstTile.setObstacleTile();
+        Tile* obstTile = makeTileFromIdx(tileIdx);
+        obstTile->setObstacleTile();
 
         obstacles[tileIdx] = obstTile;
     }  
@@ -83,102 +86,100 @@ void Grid::updateStartGoalTiles(void) {
 }
 
 void Grid::solveAStar(void) {
-    std::this_thread::sleep_for(std::chrono::milliseconds(300));
     std::cout << "starting search" << std::endl;
-    std::unordered_map<int, Tile> open;       // open list
+    std::this_thread::sleep_for(std::chrono::milliseconds(300));
+
+    std::set<Tile*, TilePtrCompare> open;
 
     // place start tile in open list with f=0
-    open.insert(start);;
+    open.insert(start.second);
 
-    int it = 0;
+    int i = 0;
 
     // while (!open.empty()) {
-    while (it < 5) {
-        // print out for open list
-        std::cout << " ------- updated open list --------" << std::endl;
-        for (auto val : open) {
-            std::cout << "tile " << val.first << ", f val " << val.second.f << std::endl;
-        }
-
-        // pop q off open list, mark as visited, add to closed list
-        auto q = open.begin();
-        q->second.setVisited();
-        closed.insert(std::make_pair(q->first, q->second));
+    while (i < 26) {
+        // pop q off open list, mark as visited, add to tile map, add to closed list
+        auto q = *open.begin();
+        q->setVisited();
+        tileMap.insert({q->idx, q});
+        closed.insert(q->idx);
         open.erase(q);
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(50));
-
-        std::cout << "q is " << q->first << std::endl;
+        std::cout << "q is " << q->idx << std::endl;
 
         // generate q's successors, add to open list
-        auto successors = getSuccessors(q->first, q->second);
+        std::vector<int> successors = getSuccessors(q->idx);
 
-        for (auto successor : successors) {
+        for (auto successorIdx : successors) {
             // if successor is goal, stop search
-            if (successor.first == goal.first) {
+            if (successorIdx == goal.first) {
                 std::cout << "goal found!" << std::endl;
                 break;
             }
 
+            // make a tile for the successor
+            Tile* successorTile = makeTileFromIdx(successorIdx);
+            successorTile->addParent(q->idx);
+
             // calculate g, h and f for each successor
-            successor.second.calculateG(start.second);
-            successor.second.calculateH(goal.second);
-            successor.second.calculateF();
+            successorTile->calculateG(*start.second);
+            successorTile->calculateH(*goal.second);
+            successorTile->calculateF();
 
-            std::cout << "   successor id " << successor.first << " f value " << successor.second.f << std::endl;
+            std::cout << "   successor id " << successorIdx << " f value " << successorTile->f << std::endl;
 
-            // if a tile in open has same position as successor
-            auto openIt = open.find(successor.first);
-            if (openIt != open.end()) {
-                std::cout << "   successor found in open list" << std::endl;
-                // if tile has lower f than successor, skip
-                if (openIt->second.f < successor.second.f) {
-                    std::cout << "   successor has larger f value, skipping" << std::endl;
+            auto it = tileMap.find(successorIdx);
+            // if a tile in the map is found with same position as the successor
+            if (it != tileMap.end()) {
+                // if in closed list
+                if (closed.find(successorIdx) != closed.end()) {
+                    std::cout << "successor tile already found in closed list" << std::endl;
                     continue;
                 }
-            }
-
-            // if a tile in closed has same position as successor
-            auto closedIt = closed.find(successor.first);
-            if (closedIt != closed.end()) {
-                std::cout << "   successor found in closed list " << std::endl;
-                // if tile has lower f than successor, skip
-                if (closedIt->second.f < successor.second.f) {
-                    std::cout << "   successor has larger f value, skipping" << std::endl;
-                    continue;
+                // if in open list
+                else {
+                    // if the node's f value is smaller, skip
+                    if (tileMap[successorIdx]->f < successorTile->f) {
+                        std::cout << "successor tile with lower f value found in open list" << std::endl;
+                        continue;
+                    }
+                    // update the f value
+                    else {
+                        std::cout << "successor tile found in open list, updating f value" << std::endl;
+                        tileMap[successorIdx]->f = successorTile->f;
+                    }
                 }
             }
-
-            // otherwise, add tile to open list
-            std::cout << "adding successor " << successor.first << " to open list" << std::endl;
-
-            if (successor.second.f < open.begin()->second.f) {
-                std::cout << "successor has smaller f than first value in open map" << std::endl;
-                open.insert(open.end(), successor);
-            }
+            // add the tile to tile map
             else {
-                open.insert(successor);
+                std::cout << "          adding tile " << successorIdx << " to open list" << std::endl;
+                open.insert(successorTile);
+                tileMap.insert({successorIdx, successorTile});
             }
         }
 
         std::cout << "++++++ updated closed list ++++++++" << std::endl;
         for (auto c : closed) {
-            std::cout << "tile " << c.first << ", f val " << c.second.f << std::endl;
+            std::cout << "tile " << c << std::endl;
         }
 
-        break;
-        it++;
+        std::cout << " ------- updated open list --------" << std::endl;
+        for (auto o : open) {
+            std::cout << "     tile " << o->idx << ", f val " << o->f << std::endl;
+        }
+
+        i++;
     }
 
     std::this_thread::sleep_for(std::chrono::milliseconds(300));
 }
 
-Tile Grid::makeTileFromIdx(int idx) {
+Tile* Grid::makeTileFromIdx(int idx) {
     int x = idx % xTiles;
     int y = idx / xTiles;
     sf::RectangleShape shape(sf::Vector2f(tileDim, tileDim));
     shape.setPosition(x * tileDim, y * tileDim);
-    return Tile(x, y, shape);
+    return new Tile(x, y, idx, shape);
 }
 
 int Grid::getTileIdxFromMousePos(void) {
@@ -195,10 +196,9 @@ int Grid::getTileIdxFromTilePos(int x, int y) {
     return y * xTiles + x;
 }
 
-
 bool Grid::isInBounds(int x, int y) {
     // check if x is in bounds
-    bool isXInBounds = (x == std::max(0, std::min(x, xTiles-1)));
+    bool isXInBounds = (x == std::max(0, std::min(x, xTiles)));
     if (isXInBounds == false) {
         return false;
     }
@@ -231,44 +231,44 @@ void Grid::setNewTile(bool isStart) {
     }
 
     // update start tile info
-    Tile newTile = makeTileFromIdx(tileIdx);
+    Tile* newTile = makeTileFromIdx(tileIdx);
 
     if (isStart == true) {
-        newTile.setStartTile();
+        newTile->setStartTile();
         start = {tileIdx, newTile};
     }
     else {
-        newTile.setGoalTile();
+        newTile->setGoalTile();
         goal = {tileIdx, newTile};
     }
 
     std::this_thread::sleep_for(std::chrono::milliseconds(300));
 }
 
-std::map<int, Tile> Grid::getSuccessors(int idx, Tile &q) {
+std::vector<int> Grid::getSuccessors(int idx) {
     std::vector<std::pair<int, int>> successorPoses;
     
-    successorPoses.push_back(std::make_pair(q.x-1, q.y-1));     // north-west
-    successorPoses.push_back(std::make_pair(q.x, q.y-1));       // north
-    successorPoses.push_back(std::make_pair(q.x+1, q.y-1));       // north-east
-    successorPoses.push_back(std::make_pair(q.x+1, q.y));         // east
-    successorPoses.push_back(std::make_pair(q.x+1, q.y+1));       // south-east
-    successorPoses.push_back(std::make_pair(q.x, q.y+1));         // south
-    successorPoses.push_back(std::make_pair(q.x-1, q.y+1));       // south-west
-    successorPoses.push_back(std::make_pair(q.x-1, q.y));         // west
+    int x = tileMap[idx]->x;
+    int y = tileMap[idx]->y;
 
-    std::map<int, Tile> successors;
+    successorPoses.push_back(std::make_pair(x-1, y-1));     // north-west
+    successorPoses.push_back(std::make_pair(x, y-1));       // north
+    successorPoses.push_back(std::make_pair(x+1, y-1));     // north-east
+    successorPoses.push_back(std::make_pair(x+1, y));       // east
+    successorPoses.push_back(std::make_pair(x+1, y+1));     // south-east
+    successorPoses.push_back(std::make_pair(x, y+1));       // south
+    successorPoses.push_back(std::make_pair(x-1, y+1));     // south-west
+    successorPoses.push_back(std::make_pair(x-1, y));       // west
+
+    std::vector<int> successorIdxs;
 
     for (auto pos : successorPoses) {
         // check if pos is in bounds
         if (isInBounds(pos.first, pos.second)) {
             // make the tile and add to successors
             int idx = getTileIdxFromTilePos(pos.first, pos.second);
-            Tile tile = makeTileFromIdx(idx);
-            tile.addParent(idx, q);
-            successors.insert({idx, tile});
+            successorIdxs.push_back(idx);
         }
     }
-
-    return successors;
+    return successorIdxs;
 }

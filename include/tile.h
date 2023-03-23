@@ -5,12 +5,14 @@
 #include <iostream>
 #include <cfloat>
 #include <cmath>
+#include <set>
 
 
 struct Tile {
     public:
         int x;
         int y;
+        int idx;
         sf::RectangleShape shape;
 
         bool isStart = false;
@@ -25,9 +27,7 @@ struct Tile {
         static constexpr double ca = 1.;        // cost of adjacent movement
         static constexpr double cd = 1.41421;   // cost of diagonal movements
 
-        // std::vector<int> neighbors;
-        std::map<int, Tile> successors;
-        std::map<int, Tile> parents;
+        std::set<int> parents;
 
         // visual properties of tiles
         static constexpr double outlineTileThickness = 1;
@@ -39,7 +39,7 @@ struct Tile {
         sf::Color obstacleTileColor = sf::Color(100, 27, 48);
 
         Tile();
-        Tile(int x, int y, sf::RectangleShape &shape);
+        Tile(int x, int y, int idx, sf::RectangleShape &shape);
         ~Tile();
         bool operator<(const Tile &rhs) const;
         
@@ -48,9 +48,13 @@ struct Tile {
         void setObstacleTile(void);
         void setVisited(void);
 
-        void addParent(const int idx, Tile &tile);
+        void addParent(const int idx);
 
         void calculateG(const Tile &tile);
         void calculateH(const Tile &tile);
         void calculateF(void);
+};
+
+struct TilePtrCompare {
+    bool operator()(const Tile* lhs, const Tile* rhs) const;
 };

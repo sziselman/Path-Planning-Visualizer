@@ -3,7 +3,7 @@
 
 Tile::Tile() {}
 
-Tile::Tile(int x, int y, sf::RectangleShape &shape) : x(x), y(y), shape(shape) {
+Tile::Tile(int x, int y, int idx, sf::RectangleShape &shape) : x(x), y(y), idx(idx), shape(shape) {
     shape.setOutlineColor(outlineTileColor);
     shape.setOutlineThickness(outlineTileThickness);
 }
@@ -11,7 +11,9 @@ Tile::Tile(int x, int y, sf::RectangleShape &shape) : x(x), y(y), shape(shape) {
 Tile::~Tile() {}
 
 bool Tile::operator<(const Tile &rhs) const {
-    return this->f < rhs.f;
+    std::cout << "current f " << f << std::endl;
+    std::cout << "rhs f " << rhs.f << std::endl;
+    return f < rhs.f;
 }
 
 void Tile::setStartTile(void) {
@@ -52,8 +54,8 @@ void Tile::setVisited(void) {
     shape.setFillColor(visitedTileColor);
 }
 
-void Tile::addParent(const int idx, Tile &tile) {
-    parents.insert({idx, tile});
+void Tile::addParent(const int idx) {
+    parents.insert(idx);
 }
 
 void Tile::calculateG(const Tile &tile) {
@@ -73,4 +75,8 @@ void Tile::calculateH(const Tile &tile) {
 
 void Tile::calculateF(void) {
     f = g + h;
+}
+
+bool TilePtrCompare::operator()(const Tile* lhs, const Tile* rhs) const {
+    return lhs->f < rhs->f;
 }
