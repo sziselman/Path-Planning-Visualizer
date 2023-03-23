@@ -15,46 +15,65 @@ struct Tile {
         int idx;
         sf::RectangleShape shape;
 
-        bool isStart = false;
-        bool isGoal = false;
-        bool isObstacle = false;
-        bool isVisited = false;
-
-        // heuristic values
-        double g;   // cost to get from start to current using path taken
-        double h;   // estimated movement cost from current to goal
-        double f;   // g + h
+        double g;                               // cost to get from start to current using path taken
+        double h;                               // estimated movement cost from current to goal
+        double f;                               // g + h
         static constexpr double ca = 1.;        // cost of adjacent movement
         static constexpr double cd = 1.41421;   // cost of diagonal movements
 
-        std::set<int> parents;
+        Tile* parent = nullptr;
 
         // visual properties of tiles
         static constexpr double outlineTileThickness = 1;
-        sf::Color visitedTileColor = sf::Color(255, 179, 71);
-        sf::Color visitingTileColor = sf::Color(195, 205, 230);
+        sf::Color visitedTileColor = sf::Color(195, 205, 230);
         sf::Color outlineTileColor = sf::Color::Black;
-        sf::Color startTileColor = sf::Color::Red;
+        sf::Color pathTileColor = sf::Color(220, 20, 60);
         sf::Color goalTileColor = sf::Color(216, 178, 209);
         sf::Color obstacleTileColor = sf::Color(100, 27, 48);
 
+        /// @brief Empty constructor for Tile class
         Tile();
+
+        /// @brief Constructor for Tile class
+        /// @param x X coordinate of the tile
+        /// @param y Y coordinate of the tile
+        /// @param idx Index location of the tile
+        /// @param shape SFML Shape used to visualize the tile
         Tile(int x, int y, int idx, sf::RectangleShape &shape);
+
+        /// @brief Destructor for Tile class
         ~Tile();
-        bool operator<(const Tile &rhs) const;
         
-        void setStartTile(void);
-        void setGoalTile(void);
-        void setObstacleTile(void);
-        void setVisited(void);
+        /// @brief Changes the tile to the start color
+        void setStartTile();
 
-        void addParent(const int idx);
+        /// @brief Changes the tile to the goal color
+        void setGoalTile();
 
-        void calculateG(const Tile &tile);
-        void calculateH(const Tile &tile);
+        /// @brief Changes the tile to the obstacle color
+        void setObstacleTile();
+
+        /// @brief Changes the tile to the visited color
+        void setVisited();
+
+        /// @brief Changes the tile to the traversed path color
+        void setPath();
+
+        /// @brief Calculates the distance traversed along the created trajectory using the most recent parent
+        void calculateG();
+
+        /// @brief Calculates the non-uniform diagonal distance as a heuristic (assuming moving in 8 directions)
+        /// @param tile A pointer to the Tile object representing the goal
+        void calculateH(const Tile* tile);
+
+        /// @brief Calculates the f-value used to determine the "shortest" path to the goal
         void calculateF(void);
 };
 
 struct TilePtrCompare {
+    /// @brief Overload on comparison operator, used to sort a set of Tile pointers
+    /// @param lhs Pointer to the left-hand side Tile
+    /// @param rhs Pointer to the right-hand side Tile
+    /// @return True if the left-hand side Tile's f-value is less than the right-hand side Tile's f-vale, False otherwise
     bool operator()(const Tile* lhs, const Tile* rhs) const;
 };

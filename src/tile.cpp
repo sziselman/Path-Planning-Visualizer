@@ -10,65 +10,38 @@ Tile::Tile(int x, int y, int idx, sf::RectangleShape &shape) : x(x), y(y), idx(i
 
 Tile::~Tile() {}
 
-bool Tile::operator<(const Tile &rhs) const {
-    std::cout << "current f " << f << std::endl;
-    std::cout << "rhs f " << rhs.f << std::endl;
-    return f < rhs.f;
-}
-
 void Tile::setStartTile(void) {
-    // update booleans
-    isStart = true;
-    isGoal = false;
-    isObstacle = false;
-    isVisited = false;
-
-    // update heuristics
     g = 0.;
     h = 0.;
     f = 0.;
 
-    shape.setFillColor(startTileColor);
+    shape.setFillColor(pathTileColor);
 }
 
 void Tile::setGoalTile(void) {
-    isStart = false;
-    isGoal = true;
-    isObstacle = false;
-    isVisited = false;
-
     shape.setFillColor(goalTileColor);
 }
 
 void Tile::setObstacleTile(void) {
-    isStart = false;
-    isGoal = false;
-    isObstacle = true;
-
     shape.setFillColor(obstacleTileColor);
 }
 
 void Tile::setVisited(void) {
-    isVisited = true;
-
     shape.setFillColor(visitedTileColor);
 }
 
-void Tile::addParent(const int idx) {
-    parents.insert(idx);
+void Tile::setPath(void) {
+    shape.setFillColor(pathTileColor);
 }
 
-void Tile::calculateG(const Tile &tile) {
-    double dist = sqrt(pow(tile.x - x, 2) + pow(tile.y - y, 2));
-    g = tile.g + dist;
+void Tile::calculateG(void) {
+    double dist = sqrt(pow(parent->x - x, 2) + pow(parent->y - y, 2));
+    g = parent->g + dist;
 }
 
-void Tile::calculateH(const Tile &tile) {
-    /**
-     * @brief calculates the non-uniform diagonal distance, assuming we are allowed to move in all 8 directions
-    */
-    double dmax = std::max(abs(x - tile.x), abs(y - tile.y));
-    double dmin = std::min(abs(x - tile.x), abs(y - tile.y));
+void Tile::calculateH(const Tile* tile) {
+    double dmax = std::max(abs(x - tile->x), abs(y - tile->y));
+    double dmin = std::min(abs(x - tile->x), abs(y - tile->y));
 
     h = cd * dmin + ca * (dmax - dmin);
 }
@@ -78,5 +51,11 @@ void Tile::calculateF(void) {
 }
 
 bool TilePtrCompare::operator()(const Tile* lhs, const Tile* rhs) const {
-    return lhs->f < rhs->f;
+    // if tiles have the same f value, sort by index
+    if (lhs->f == rhs->f) {
+        return lhs->idx < rhs->idx;
+    }
+    else {
+        return lhs->f < rhs->f;
+    }
 }

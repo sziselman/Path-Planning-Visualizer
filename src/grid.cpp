@@ -5,10 +5,6 @@ Grid::Grid(int width, int height, sf::RenderWindow& window, sf::Mouse& mouse) : 
                                                                                 window(window), mouse(mouse) {
     xTiles = width / tileDim;
     yTiles = height / tileDim;
-
-    std::cout << "x tiles " << xTiles << std::endl;
-    std::cout << "y tiles " << yTiles << std::endl;
-
     totalTiles = xTiles * yTiles;
 
     // initialize default start tile
@@ -28,8 +24,7 @@ Grid::Grid(int width, int height, sf::RenderWindow& window, sf::Mouse& mouse) : 
 
 Grid::~Grid() {}
 
-void Grid::displayDefaultGrid(void) {
-    // set visualization for tiles
+void Grid::displayDefaultGrid() {
     for (int i = 0; i < totalTiles; i++) {
         sf::RectangleShape shape(sf::Vector2f(tileDim, tileDim));
         
@@ -44,22 +39,18 @@ void Grid::displayDefaultGrid(void) {
     }
 }
 
-void Grid::displayTiles(void) {
+void Grid::displayTiles() {
     window.draw(start.second->shape);
     window.draw(goal.second->shape);
 
-    // draw all obstacles
-    for (const auto o : obstacles) {
-        window.draw(o.second->shape);
+    for (const int obst : obstacles) {
+        window.draw(tileMap[obst]->shape);
     }
 
-    // draw all visited nodes
-    for (const auto c : closed) {
-        window.draw(tileMap[c]->shape);
-    }
+    displayVisitedTiles();
 }
 
-void Grid::addObstacle(void) {
+void Grid::addObstacle() {
     int tileIdx = getTileIdxFromMousePos();
 
     if (tileIdx == start.first || tileIdx == goal.first) {
@@ -67,14 +58,17 @@ void Grid::addObstacle(void) {
     }
 
     if (obstacles.find(tileIdx) == obstacles.end()) {
+        // add obstacle index to obstacles
+        obstacles.insert(tileIdx);
+
+        // make tile and add to tile map
         Tile* obstTile = makeTileFromIdx(tileIdx);
         obstTile->setObstacleTile();
-
-        obstacles[tileIdx] = obstTile;
+        tileMap[tileIdx] = obstTile;
     }  
 }
 
-void Grid::updateStartGoalTiles(void) {
+void Grid::updateStartGoalTiles() {
     int tileIdx = getTileIdxFromMousePos();
 
     if (tileIdx == start.first) {
@@ -85,93 +79,65 @@ void Grid::updateStartGoalTiles(void) {
     }
 }
 
-void Grid::solveAStar(void) {
+void Grid::solveAStar() {
     std::cout << "starting search" << std::endl;
-    std::this_thread::sleep_for(std::chrono::milliseconds(300));
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
     std::set<Tile*, TilePtrCompare> open;
 
     // place start tile in open list with f=0
     open.insert(start.second);
 
-    int i = 0;
+    while (!open.empty()) {
 
-    // while (!open.empty()) {
-    while (i < 26) {
+        displayVisitedTiles();
+
         // pop q off open list, mark as visited, add to tile map, add to closed list
         auto q = *open.begin();
+
+        // draw traversed path
+        getTraversedPath(q->idx);
+        displayPathTiles();
+
         q->setVisited();
         tileMap.insert({q->idx, q});
         closed.insert(q->idx);
         open.erase(q);
 
-        std::cout << "q is " << q->idx << std::endl;
+        // check if q is the goal, if so end
+        if (q->idx == goal.first) {
+            break;
+        }
 
         // generate q's successors, add to open list
         std::vector<int> successors = getSuccessors(q->idx);
 
         for (auto successorIdx : successors) {
-            // if successor is goal, stop search
-            if (successorIdx == goal.first) {
-                std::cout << "goal found!" << std::endl;
-                break;
-            }
-
             // make a tile for the successor
             Tile* successorTile = makeTileFromIdx(successorIdx);
-            successorTile->addParent(q->idx);
+            // mark it's parent
+            successorTile->parent = q;
 
             // calculate g, h and f for each successor
-            successorTile->calculateG(*start.second);
-            successorTile->calculateH(*goal.second);
+            successorTile->calculateG();
+            successorTile->calculateH(goal.second);
             successorTile->calculateF();
 
-            std::cout << "   successor id " << successorIdx << " f value " << successorTile->f << std::endl;
-
-            auto it = tileMap.find(successorIdx);
-            // if a tile in the map is found with same position as the successor
-            if (it != tileMap.end()) {
-                // if in closed list
-                if (closed.find(successorIdx) != closed.end()) {
-                    std::cout << "successor tile already found in closed list" << std::endl;
-                    continue;
-                }
-                // if in open list
-                else {
-                    // if the node's f value is smaller, skip
-                    if (tileMap[successorIdx]->f < successorTile->f) {
-                        std::cout << "successor tile with lower f value found in open list" << std::endl;
-                        continue;
-                    }
-                    // update the f value
-                    else {
-                        std::cout << "successor tile found in open list, updating f value" << std::endl;
+            if (tileMap.find(successorIdx) != tileMap.end()) {
+                if (closed.find(successorIdx) == closed.end()) {
+                    if (tileMap[successorIdx]->f > successorTile->f) {
                         tileMap[successorIdx]->f = successorTile->f;
                     }
                 }
             }
-            // add the tile to tile map
             else {
-                std::cout << "          adding tile " << successorIdx << " to open list" << std::endl;
                 open.insert(successorTile);
                 tileMap.insert({successorIdx, successorTile});
             }
         }
 
-        std::cout << "++++++ updated closed list ++++++++" << std::endl;
-        for (auto c : closed) {
-            std::cout << "tile " << c << std::endl;
-        }
-
-        std::cout << " ------- updated open list --------" << std::endl;
-        for (auto o : open) {
-            std::cout << "     tile " << o->idx << ", f val " << o->f << std::endl;
-        }
-
-        i++;
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
-
-    std::this_thread::sleep_for(std::chrono::milliseconds(300));
 }
 
 Tile* Grid::makeTileFromIdx(int idx) {
@@ -182,7 +148,7 @@ Tile* Grid::makeTileFromIdx(int idx) {
     return new Tile(x, y, idx, shape);
 }
 
-int Grid::getTileIdxFromMousePos(void) {
+int Grid::getTileIdxFromMousePos() {
     // determine position and index of tile
     auto pos = mouse.getPosition(window);
 
@@ -197,8 +163,7 @@ int Grid::getTileIdxFromTilePos(int x, int y) {
 }
 
 bool Grid::isInBounds(int x, int y) {
-    // check if x is in bounds
-    bool isXInBounds = (x == std::max(0, std::min(x, xTiles)));
+    bool isXInBounds = (x == std::max(0, std::min(x, xTiles-1)));
     if (isXInBounds == false) {
         return false;
     }
@@ -211,7 +176,7 @@ bool Grid::isInBounds(int x, int y) {
 }
 
 void Grid::setNewTile(bool isStart) {
-    settingNewTile = true;
+    bool settingNewTile = true;
 
     std::this_thread::sleep_for(std::chrono::milliseconds(300));
 
@@ -245,6 +210,21 @@ void Grid::setNewTile(bool isStart) {
     std::this_thread::sleep_for(std::chrono::milliseconds(300));
 }
 
+void Grid::displayVisitedTiles() {
+    for (int clo : closed) {
+        window.draw(tileMap[clo]->shape);   
+    }
+    window.display();
+}
+
+void Grid::displayPathTiles() {
+    for (auto pa : path) {
+        std::cout << pa << std::endl;
+    //     window.draw(tileMap[pa]->shape);
+    }
+    window.display();
+}
+
 std::vector<int> Grid::getSuccessors(int idx) {
     std::vector<std::pair<int, int>> successorPoses;
     
@@ -267,8 +247,16 @@ std::vector<int> Grid::getSuccessors(int idx) {
         if (isInBounds(pos.first, pos.second)) {
             // make the tile and add to successors
             int idx = getTileIdxFromTilePos(pos.first, pos.second);
-            successorIdxs.push_back(idx);
+
+            // check if tile index is in obstacles 
+            if (obstacles.find(idx) == obstacles.end()) {
+                successorIdxs.push_back(idx);
+            }
         }
     }
     return successorIdxs;
+}
+
+void Grid::getTraversedPath(int idx) {
+    return;
 }
