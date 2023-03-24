@@ -47,7 +47,7 @@ class Grid {
         sf::Mouse& mouse;
 
         // tile variables
-        static constexpr double tileDim = 100;
+        static constexpr double tileDim = 40;
         int xTiles;
         int yTiles;
         int totalTiles;

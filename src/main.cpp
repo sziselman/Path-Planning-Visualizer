@@ -9,6 +9,4 @@ int main() {
         vis.render();
         vis.update();
     }
-
-    return 0;
 }

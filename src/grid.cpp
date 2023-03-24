@@ -81,11 +81,13 @@ void Grid::updateStartGoalTiles() {
 
 void Grid::solveAStar() {
     std::cout << "starting search" << std::endl;
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    std::this_thread::sleep_for(std::chrono::milliseconds(60));
 
     std::set<Tile*, TilePtrCompare> open;
 
-    // place start tile in open list with f=0
+    // add the start and goal tile to map
+    tileMap.insert(start);
+
     open.insert(start.second);
 
     while (!open.empty()) {
@@ -94,10 +96,6 @@ void Grid::solveAStar() {
 
         // pop q off open list, mark as visited, add to tile map, add to closed list
         auto q = *open.begin();
-
-        // draw traversed path
-        getTraversedPath(q->idx);
-        displayPathTiles();
 
         q->setVisited();
         tileMap.insert({q->idx, q});
@@ -135,9 +133,12 @@ void Grid::solveAStar() {
                 tileMap.insert({successorIdx, successorTile});
             }
         }
-
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
+
+    // display the trajectory when the solution has been found
+    getTraversedPath(goal.first);
+    displayPathTiles();
 }
 
 Tile* Grid::makeTileFromIdx(int idx) {
@@ -200,11 +201,11 @@ void Grid::setNewTile(bool isStart) {
 
     if (isStart == true) {
         newTile->setStartTile();
-        start = {tileIdx, newTile};
+        start = std::make_pair(tileIdx, newTile);
     }
     else {
         newTile->setGoalTile();
-        goal = {tileIdx, newTile};
+        goal = std::make_pair(tileIdx, newTile);
     }
 
     std::this_thread::sleep_for(std::chrono::milliseconds(300));
@@ -218,9 +219,9 @@ void Grid::displayVisitedTiles() {
 }
 
 void Grid::displayPathTiles() {
-    for (auto pa : path) {
-        std::cout << pa << std::endl;
-    //     window.draw(tileMap[pa]->shape);
+    for (auto p : path) {
+        tileMap[p]->setPath();
+        window.draw(tileMap[p]->shape);
     }
     window.display();
 }
@@ -258,5 +259,11 @@ std::vector<int> Grid::getSuccessors(int idx) {
 }
 
 void Grid::getTraversedPath(int idx) {
-    return;
+    path = {idx};
+    int parentIdx;
+    while (tileMap[idx]->parent != nullptr) {
+        parentIdx = tileMap[idx]->parent->idx;
+        path.insert(path.begin(), parentIdx);
+        idx = parentIdx;
+    }
 }
