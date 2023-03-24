@@ -91,16 +91,19 @@ void Grid::solveAStar() {
     open.insert(start.second);
 
     while (!open.empty()) {
-
         displayVisitedTiles();
+
+        std::cout << "updated open list" << std::endl;
+        for (auto o : open) {
+            std::cout << "    tile " << o->idx << ", f val " << o->f << std::endl;
+        }
 
         // pop q off open list, mark as visited, add to tile map, add to closed list
         auto q = *open.begin();
-
+        std::cout << "   q is " << q->idx << std::endl;
         q->setVisited();
-        tileMap.insert({q->idx, q});
         closed.insert(q->idx);
-        open.erase(q);
+        open.erase(open.begin());
 
         // check if q is the goal, if so end
         if (q->idx == goal.first) {
@@ -113,11 +116,10 @@ void Grid::solveAStar() {
         for (auto successorIdx : successors) {
             // make a tile for the successor
             Tile* successorTile = makeTileFromIdx(successorIdx);
-            // mark it's parent
-            successorTile->parent = q;
+            successorTile->parent = q->idx;
 
             // calculate g, h and f for each successor
-            successorTile->calculateG();
+            successorTile->calculateG(tileMap[q->idx]);
             successorTile->calculateH(goal.second);
             successorTile->calculateF();
 
@@ -125,6 +127,10 @@ void Grid::solveAStar() {
                 if (closed.find(successorIdx) == closed.end()) {
                     if (tileMap[successorIdx]->f > successorTile->f) {
                         tileMap[successorIdx]->f = successorTile->f;
+                        std::cout << "previous parent " << tileMap[successorIdx]->parent << std::endl;
+                        tileMap[successorIdx]->parent = q->idx;
+                        std::cout << "updated parent " << tileMap[successorIdx]->parent << std::endl;
+
                     }
                 }
             }
@@ -261,8 +267,9 @@ std::vector<int> Grid::getSuccessors(int idx) {
 void Grid::getTraversedPath(int idx) {
     path = {idx};
     int parentIdx;
-    while (tileMap[idx]->parent != nullptr) {
-        parentIdx = tileMap[idx]->parent->idx;
+    // while (tileMap[idx]->parent != nullptr) {
+    while (tileMap[idx]->parent != -1) {
+        parentIdx = tileMap[idx]->parent;
         path.insert(path.begin(), parentIdx);
         idx = parentIdx;
     }

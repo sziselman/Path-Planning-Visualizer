@@ -34,9 +34,13 @@ void Tile::setPath(void) {
     shape.setFillColor(pathTileColor);
 }
 
-void Tile::calculateG(void) {
-    double dist = sqrt(pow(parent->x - x, 2) + pow(parent->y - y, 2));
-    g = parent->g + dist;
+// void Tile::calculateG(void) {
+//     double dist = sqrt(pow(parent->x - x, 2) + pow(parent->y - y, 2));
+//     g = parent->g + dist;
+// }
+void Tile::calculateG(const Tile* tile) {
+    double dist = sqrt(pow(double(tile->x - x), 2) + pow(double(tile->y - y), 2));
+    g = tile->g + dist;
 }
 
 void Tile::calculateH(const Tile* tile) {
@@ -51,11 +55,5 @@ void Tile::calculateF(void) {
 }
 
 bool TilePtrCompare::operator()(const Tile* lhs, const Tile* rhs) const {
-    // if tiles have the same f value, sort by index
-    if (lhs->f == rhs->f) {
-        return lhs->idx < rhs->idx;
-    }
-    else {
-        return lhs->f < rhs->f;
-    }
+    return lhs->f <= rhs->f;
 }

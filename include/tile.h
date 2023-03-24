@@ -21,7 +21,8 @@ struct Tile {
         static constexpr double ca = 1.;        // cost of adjacent movement
         static constexpr double cd = 1.41421;   // cost of diagonal movements
 
-        Tile* parent = nullptr;
+        // Tile* parent = nullptr;
+        int parent = -1;
 
         // visual properties of tiles
         static constexpr double outlineTileThickness = 1;
@@ -60,7 +61,8 @@ struct Tile {
         void setPath();
 
         /// @brief Calculates the distance traversed along the created trajectory using the most recent parent
-        void calculateG();
+        // void calculateG();
+        void calculateG(const Tile* tile);
 
         /// @brief Calculates the non-uniform diagonal distance as a heuristic (assuming moving in 8 directions)
         /// @param tile A pointer to the Tile object representing the goal
