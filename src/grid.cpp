@@ -80,66 +80,52 @@ void Grid::updateStartGoalTiles() {
 }
 
 void Grid::solveAStar() {
-    std::cout << "starting search" << std::endl;
     std::this_thread::sleep_for(std::chrono::milliseconds(60));
 
     std::set<Tile*, TilePtrCompare> open;
 
-    // add the start and goal tile to map
+    // add the start tile to the map, add to open list
     tileMap.insert(start);
-
     open.insert(start.second);
 
     while (!open.empty()) {
         displayVisitedTiles();
 
-        std::cout << "updated open list" << std::endl;
-        for (auto o : open) {
-            std::cout << "    tile " << o->idx << ", f val " << o->f << std::endl;
-        }
-
-        // pop q off open list, mark as visited, add to tile map, add to closed list
         auto q = *open.begin();
-        std::cout << "   q is " << q->idx << std::endl;
         q->setVisited();
         closed.insert(q->idx);
         open.erase(open.begin());
+        std::this_thread::sleep_for(std::chrono::milliseconds(20));
 
-        // check if q is the goal, if so end
+        for (auto p : path) {
+            tileMap[p]->setVisited();
+        }
+        path.clear();
+        getTraversedPath(q->idx);
+        displayPathTiles();
+        std::this_thread::sleep_for(std::chrono::milliseconds(20));
+
         if (q->idx == goal.first) {
             break;
         }
-
-        // generate q's successors, add to open list
-        std::vector<int> successors = getSuccessors(q->idx);
-
-        for (auto successorIdx : successors) {
-            // make a tile for the successor
-            Tile* successorTile = makeTileFromIdx(successorIdx);
-            successorTile->parent = q->idx;
-
-            // calculate g, h and f for each successor
-            successorTile->calculateG(tileMap[q->idx]);
-            successorTile->calculateH(goal.second);
-            successorTile->calculateF();
-
-            if (tileMap.find(successorIdx) != tileMap.end()) {
-                if (closed.find(successorIdx) == closed.end()) {
-                    if (tileMap[successorIdx]->f > successorTile->f) {
-                        tileMap[successorIdx]->f = successorTile->f;
-                        std::cout << "previous parent " << tileMap[successorIdx]->parent << std::endl;
-                        tileMap[successorIdx]->parent = q->idx;
-                        std::cout << "updated parent " << tileMap[successorIdx]->parent << std::endl;
-
+        for (auto successor : getSuccessors(q)) {
+            if (tileMap.find(successor->idx) != tileMap.end()) {
+                if (closed.find(successor->idx) == closed.end()) {
+                    if (tileMap[successor->idx]->f > successor->f) {
+                        // update f value and parent
+                        tileMap[successor->idx]->parent = q;
+                        tileMap[successor->idx]->f = successor->f;
+                        tileMap[successor->idx]->g = successor->g;
+                        open.insert(tileMap[successor->idx]);
                     }
                 }
             }
             else {
-                open.insert(successorTile);
-                tileMap.insert({successorIdx, successorTile});
+                open.insert(successor);
+                tileMap.insert({successor->idx, successor});
             }
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::this_thread::sleep_for(std::chrono::milliseconds(20));
     }
 
     // display the trajectory when the solution has been found
@@ -169,13 +155,13 @@ int Grid::getTileIdxFromTilePos(int x, int y) {
     return y * xTiles + x;
 }
 
-bool Grid::isInBounds(int x, int y) {
-    bool isXInBounds = (x == std::max(0, std::min(x, xTiles-1)));
+bool Grid::isInBounds(std::pair<int, int> pos) {
+    bool isXInBounds = (pos.first == std::max(0, std::min(pos.first, xTiles-1)));
     if (isXInBounds == false) {
         return false;
     }
     // check if y is in bounds
-    bool isYInBounds = (y == std::max(0, std::min(y, yTiles-1)));
+    bool isYInBounds = (pos.second == std::max(0, std::min(pos.second, yTiles-1)));
     if (isYInBounds == false) {
         return false;
     }
@@ -232,11 +218,11 @@ void Grid::displayPathTiles() {
     window.display();
 }
 
-std::vector<int> Grid::getSuccessors(int idx) {
+std::vector<Tile*> Grid::getSuccessors(const Tile* tile) {
     std::vector<std::pair<int, int>> successorPoses;
     
-    int x = tileMap[idx]->x;
-    int y = tileMap[idx]->y;
+    int x = tile->x;
+    int y = tile->y;
 
     successorPoses.push_back(std::make_pair(x-1, y-1));     // north-west
     successorPoses.push_back(std::make_pair(x, y-1));       // north
@@ -244,32 +230,28 @@ std::vector<int> Grid::getSuccessors(int idx) {
     successorPoses.push_back(std::make_pair(x+1, y));       // east
     successorPoses.push_back(std::make_pair(x+1, y+1));     // south-east
     successorPoses.push_back(std::make_pair(x, y+1));       // south
-    successorPoses.push_back(std::make_pair(x-1, y+1));     // south-west
+    successorPoses.push_back(std::make_pair(x+1, y-1));     // south-west
     successorPoses.push_back(std::make_pair(x-1, y));       // west
 
-    std::vector<int> successorIdxs;
+    std::vector<Tile*> successors;
 
     for (auto pos : successorPoses) {
-        // check if pos is in bounds
-        if (isInBounds(pos.first, pos.second)) {
-            // make the tile and add to successors
-            int idx = getTileIdxFromTilePos(pos.first, pos.second);
-
-            // check if tile index is in obstacles 
-            if (obstacles.find(idx) == obstacles.end()) {
-                successorIdxs.push_back(idx);
-            }
+        int idx = getTileIdxFromTilePos(pos.first, pos.second);
+        if (isInBounds(pos) && obstacles.find(idx) == obstacles.end()) {
+            Tile* newTile = makeTileFromIdx(idx);
+            newTile->parent = tile;
+            newTile->calculateF(goal.second);
+            successors.push_back(newTile);
         }
     }
-    return successorIdxs;
+    return successors;
 }
 
 void Grid::getTraversedPath(int idx) {
     path = {idx};
     int parentIdx;
-    // while (tileMap[idx]->parent != nullptr) {
-    while (tileMap[idx]->parent != -1) {
-        parentIdx = tileMap[idx]->parent;
+    while (tileMap[idx]->parent != nullptr) {
+        parentIdx = tileMap[idx]->parent->idx;
         path.insert(path.begin(), parentIdx);
         idx = parentIdx;
     }

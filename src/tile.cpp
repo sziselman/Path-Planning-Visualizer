@@ -12,7 +12,6 @@ Tile::~Tile() {}
 
 void Tile::setStartTile(void) {
     g = 0.;
-    h = 0.;
     f = 0.;
 
     shape.setFillColor(pathTileColor);
@@ -24,33 +23,33 @@ void Tile::setGoalTile(void) {
 
 void Tile::setObstacleTile(void) {
     shape.setFillColor(obstacleTileColor);
+    shape.setOutlineColor(outlineTileColor);
+    shape.setOutlineThickness(outlineTileThickness);
 }
 
 void Tile::setVisited(void) {
     shape.setFillColor(visitedTileColor);
+    shape.setOutlineColor(outlineTileColor);
+    shape.setOutlineThickness(outlineTileThickness);
 }
 
 void Tile::setPath(void) {
     shape.setFillColor(pathTileColor);
+    shape.setOutlineColor(outlineTileColor);
+    shape.setOutlineThickness(outlineTileThickness);
 }
 
-// void Tile::calculateG(void) {
-//     double dist = sqrt(pow(parent->x - x, 2) + pow(parent->y - y, 2));
-//     g = parent->g + dist;
-// }
-void Tile::calculateG(const Tile* tile) {
-    double dist = sqrt(pow(double(tile->x - x), 2) + pow(double(tile->y - y), 2));
-    g = tile->g + dist;
-}
+void Tile::calculateF(const Tile* goal) {
+    // calculate g
+    g = parent->g + sqrt(pow(parent->x - x, 2) + pow(parent->y - y, 2));
 
-void Tile::calculateH(const Tile* tile) {
-    double dmax = std::max(abs(x - tile->x), abs(y - tile->y));
-    double dmin = std::min(abs(x - tile->x), abs(y - tile->y));
+    // calculate h
+    // double h = abs(goal->x - x) + abs(goal->y - y);
+    double dmax = std::max(abs(goal->x - x), abs(goal->y - y));
+    double dmin = std::min(abs(goal->x - x), abs(goal->y - y));
 
-    h = cd * dmin + ca * (dmax - dmin);
-}
+    double h = cd * dmin + ca * (dmax - dmin);
 
-void Tile::calculateF(void) {
     f = g + h;
 }
 

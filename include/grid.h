@@ -47,7 +47,7 @@ class Grid {
         sf::Mouse& mouse;
 
         // tile variables
-        static constexpr double tileDim = 100;
+        static constexpr double tileDim = 40;
         int xTiles;
         int yTiles;
         int totalTiles;
@@ -82,10 +82,9 @@ class Grid {
         int getTileIdxFromTilePos(int x, int y);
 
         /// @brief Checks if a pair of x, y coordinates is in bounds of the grid
-        /// @param x The x coordinate
-        /// @param y The y coordinate
+        /// @param pos A pair representing the x, y coordinates
         /// @return True if in bounds, False if not in bounds
-        bool isInBounds(int x, int y);
+        bool isInBounds(std::pair<int, int> pos);
 
         /// @brief Sets a new location for the start or goal tiles
         /// @param isStart True if setting new location for the start tile, False if setting new location for goal tile
@@ -100,7 +99,8 @@ class Grid {
         /// @brief Checks for all valid successors that are in bounds of the grid and not obstacles
         /// @param idx The index location of the tile to get successors to
         /// @return A vector containing index locations of all the valid successors
-        std::vector<int> getSuccessors(int idx);
+        // std::vector<int> getSuccessors(int idx);
+        std::vector<Tile*> getSuccessors(const Tile* tile);
 
         /// @brief Updates the traversed path by tracing the parents until at the start tile
         /// @param idx The index location of the tile to get the path to

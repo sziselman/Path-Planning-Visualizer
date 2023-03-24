@@ -15,14 +15,12 @@ struct Tile {
         int idx;
         sf::RectangleShape shape;
 
-        double g;                               // cost to get from start to current using path taken
-        double h;                               // estimated movement cost from current to goal
+        double g;
         double f;                               // g + h
         static constexpr double ca = 1.;        // cost of adjacent movement
         static constexpr double cd = 1.41421;   // cost of diagonal movements
 
-        // Tile* parent = nullptr;
-        int parent = -1;
+        const Tile* parent = nullptr;
 
         // visual properties of tiles
         static constexpr double outlineTileThickness = 1;
@@ -60,16 +58,16 @@ struct Tile {
         /// @brief Changes the tile to the traversed path color
         void setPath();
 
-        /// @brief Calculates the distance traversed along the created trajectory using the most recent parent
-        // void calculateG();
-        void calculateG(const Tile* tile);
+        // /// @brief Calculates the distance traversed along the created trajectory using the most recent parent
+        // // void calculateG();
+        // void calculateG(const Tile* tile);
 
-        /// @brief Calculates the non-uniform diagonal distance as a heuristic (assuming moving in 8 directions)
-        /// @param tile A pointer to the Tile object representing the goal
-        void calculateH(const Tile* tile);
+        // /// @brief Calculates the non-uniform diagonal distance as a heuristic (assuming moving in 8 directions)
+        // /// @param tile A pointer to the Tile object representing the goal
+        // void calculateH(const Tile* tile);
 
         /// @brief Calculates the f-value used to determine the "shortest" path to the goal
-        void calculateF(void);
+        void calculateF(const Tile* goal);
 };
 
 struct TilePtrCompare {
