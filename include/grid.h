@@ -76,10 +76,9 @@ class Grid {
         int getTileIdxFromMousePos();
 
         /// @brief Calculates the index location from x, y coordinates
-        /// @param x The x coordinate (increasing left to right)
-        /// @param y The y coordinate (increasing top to bottom)
+        /// @param pos A pair representin the x, y coordinates
         /// @return The index location on the grid
-        int getTileIdxFromTilePos(int x, int y);
+        int getTileIdxFromTilePos(std::pair<int, int> pos);
 
         /// @brief Checks if a pair of x, y coordinates is in bounds of the grid
         /// @param pos A pair representing the x, y coordinates

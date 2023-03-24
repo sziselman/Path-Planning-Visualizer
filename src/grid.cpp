@@ -116,7 +116,6 @@ void Grid::solveAStar() {
                         tileMap[successor->idx]->parent = q;
                         tileMap[successor->idx]->f = successor->f;
                         tileMap[successor->idx]->g = successor->g;
-                        open.insert(tileMap[successor->idx]);
                     }
                 }
             }
@@ -127,10 +126,6 @@ void Grid::solveAStar() {
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(20));
     }
-
-    // display the trajectory when the solution has been found
-    getTraversedPath(goal.first);
-    displayPathTiles();
 }
 
 Tile* Grid::makeTileFromIdx(int idx) {
@@ -148,11 +143,11 @@ int Grid::getTileIdxFromMousePos() {
     int xTileLoc = ceil(pos.x / tileDim) -1;
     int yTileLoc = ceil(pos.y / tileDim) -1;
 
-    return getTileIdxFromTilePos(xTileLoc, yTileLoc);
+    return getTileIdxFromTilePos(std::make_pair(xTileLoc, yTileLoc));
 }
 
-int Grid::getTileIdxFromTilePos(int x, int y) {
-    return y * xTiles + x;
+int Grid::getTileIdxFromTilePos(std::pair<int, int> pos) {
+    return pos.second * xTiles + pos.first;
 }
 
 bool Grid::isInBounds(std::pair<int, int> pos) {
@@ -236,7 +231,7 @@ std::vector<Tile*> Grid::getSuccessors(const Tile* tile) {
     std::vector<Tile*> successors;
 
     for (auto pos : successorPoses) {
-        int idx = getTileIdxFromTilePos(pos.first, pos.second);
+        int idx = getTileIdxFromTilePos(pos);
         if (isInBounds(pos) && obstacles.find(idx) == obstacles.end()) {
             Tile* newTile = makeTileFromIdx(idx);
             newTile->parent = tile;

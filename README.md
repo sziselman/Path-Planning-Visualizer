@@ -9,3 +9,12 @@ Next, make sure that SFML is installed on your PC.
 ```
 sudo apt-get install libsfml-dev
 ```
+
+## Usage
+Open a terminal, navigate to the repository, and run the executable.
+```
+cd /path/to/repo/
+./path_planning_visualizer
+```
+A window will pop-up on the screen. To add obstacles, right click on an unoccuppied tile. To change the start (noted in crimson) and the goal (noted in pink), left click on the respective tiles and left click on an unoccuppied tile. To start the A* search implementation, press the Enter button.
+<img src="img/astar.gif"/>

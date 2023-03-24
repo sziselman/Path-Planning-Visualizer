@@ -29,6 +29,10 @@ void Visualizer::update(void) {
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter)) {
                 solveSearch = true;
             }
+
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
+                
+            }
     }
     else {
         grid.solveAStar();
