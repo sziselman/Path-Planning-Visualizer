@@ -211,5 +211,4 @@ void Grid::getPath() {
         tileMap[idx]->setPath();
         idx = tileMap[idx]->parent->idx;
     }
-    tileMap[idx]->setPath();
 }
