@@ -161,13 +161,13 @@ void Grid::setNewTile(bool isStart) {
     }
 
     if (isStart == true) {
-        tileMap[start]->setOpened();
+        tileMap[start]->setDefault();
 
         start = tileIdx;
         tileMap[start]->setStart();
     }
     else {
-        tileMap[goal]->setOpened();
+        tileMap[goal]->setDefault();
 
         goal = tileIdx;
         tileMap[goal]->setGoal();

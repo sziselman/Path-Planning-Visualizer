@@ -20,7 +20,6 @@ void Tile::setDefault() {
 void Tile::setStart() {
     g = 0.;
     f = 0.;
-
     shape.setFillColor(pathColor);
 }
 
