@@ -5,8 +5,8 @@ Tile::Tile() {}
 
 Tile::Tile(int x, int y, int idx, double dim) : x(x), y(y), idx(idx), shape(sf::Vector2f(dim, dim)) {
     shape.setPosition(x * dim, y * dim);
-    shape.setOutlineColor(outlineColor);
-    shape.setOutlineThickness(outlineThickness);
+    shape.setOutlineColor(sf::Color::Black);
+    shape.setOutlineThickness(1);
 }
 
 Tile::~Tile() {}
