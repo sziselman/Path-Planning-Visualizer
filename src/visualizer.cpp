@@ -11,7 +11,6 @@ Visualizer::Visualizer(int width, int height) : window(sf::VideoMode(width, heig
 Visualizer::~Visualizer() {}
 
 void Visualizer::render(void) {
-    grid.displayDefaultGrid();
     grid.displayTiles();
     window.display();
 }

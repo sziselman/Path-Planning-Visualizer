@@ -24,9 +24,6 @@ class Grid {
         /// @brief Destructor for Grid class
         ~Grid();
 
-        /// @brief Displays a default grid for tiles not visited
-        void displayDefaultGrid();
-
         /// @brief Displays start, goal, obstacle, and visited tiles
         void displayTiles();
 
@@ -41,8 +38,6 @@ class Grid {
 
     private:
         // window variables
-        double width;
-        double height;
         sf::RenderWindow& window;
         sf::Mouse& mouse;
 
@@ -50,19 +45,11 @@ class Grid {
         static constexpr double tileDim = 40;
         int xTiles;
         int yTiles;
-        int totalTiles;
-
-        // visual properties
-        static constexpr double outlineTileThickness = 1;
-        sf::Color openTileColor = sf::Color(255, 240, 245);
-        sf::Color outlineTileColor = sf::Color::Black;
 
         // information about all available tiles
-        std::pair<int, Tile*> start;
-        std::pair<int, Tile*> goal;
+        int start;
+        int goal;
         std::map<int, Tile*> tileMap;
-        std::set<int> closed;
-        std::vector<int> path;
         std::set<int> obstacles;
 
         // private helper functions
@@ -89,19 +76,12 @@ class Grid {
         /// @param isStart True if setting new location for the start tile, False if setting new location for goal tile
         void setNewTile(bool isStart);
 
-        /// @brief Draws all the tiles that have been visited to the window
-        void displayVisitedTiles();
-
-        /// @brief Draws all the path tiles that are respective to the current visited tile
-        void displayPathTiles();
-
         /// @brief Checks for all valid successors that are in bounds of the grid and not obstacles
         /// @param idx The index location of the tile to get successors to
         /// @return A vector containing index locations of all the valid successors
-        // std::vector<int> getSuccessors(int idx);
-        std::vector<Tile*> getSuccessors(const Tile* tile);
+        std::vector<int> getSuccessors(int idx);
 
-        /// @brief Updates the traversed path by tracing the parents until at the start tile
-        /// @param idx The index location of the tile to get the path to
-        void getTraversedPath(int idx);
+        /// @brief Traces back the path generated and updates the tile map to reflect path tiles
+        void getPath();
+
 };

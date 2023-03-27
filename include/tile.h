@@ -4,6 +4,7 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include <cfloat>
+#include <climits>
 #include <cmath>
 #include <set>
 
@@ -23,12 +24,12 @@ struct Tile {
         const Tile* parent = nullptr;
 
         // visual properties of tiles
-        static constexpr double outlineTileThickness = 1;
-        sf::Color visitedTileColor = sf::Color(195, 205, 230);
-        sf::Color outlineTileColor = sf::Color::Black;
-        sf::Color pathTileColor = sf::Color(220, 20, 60);
-        sf::Color goalTileColor = sf::Color(216, 178, 209);
-        sf::Color obstacleTileColor = sf::Color(100, 27, 48);
+        sf::Color defaultColor = sf::Color(251, 174, 210);
+        sf::Color openedColor = sf::Color(246, 120, 40);
+        sf::Color closedColor = sf::Color(195, 205, 230);
+        sf::Color pathColor = sf::Color(220, 20, 60);
+        sf::Color goalColor = sf::Color(216, 178, 209);
+        sf::Color obstacleColor = sf::Color(100, 27, 48);
 
         /// @brief Empty constructor for Tile class
         Tile();
@@ -37,37 +38,38 @@ struct Tile {
         /// @param x X coordinate of the tile
         /// @param y Y coordinate of the tile
         /// @param idx Index location of the tile
-        /// @param shape SFML Shape used to visualize the tile
-        Tile(int x, int y, int idx, sf::RectangleShape &shape);
+        /// @param dim dimension of the square tile
+        Tile(int x, int y, int idx, double dim);
 
         /// @brief Destructor for Tile class
         ~Tile();
         
         /// @brief Changes the tile to the start color
-        void setStartTile();
+        void setDefault();
+
+        /// @brief Changes the tile to the start color
+        void setStart();
 
         /// @brief Changes the tile to the goal color
-        void setGoalTile();
+        void setGoal();
 
         /// @brief Changes the tile to the obstacle color
-        void setObstacleTile();
+        void setObstacle();
+
+        /// @brief Changes the tile to the open color
+        void setOpened();
 
         /// @brief Changes the tile to the visited color
-        void setVisited();
+        void setClosed();
 
         /// @brief Changes the tile to the traversed path color
         void setPath();
-
-        // /// @brief Calculates the distance traversed along the created trajectory using the most recent parent
-        // // void calculateG();
-        // void calculateG(const Tile* tile);
-
-        // /// @brief Calculates the non-uniform diagonal distance as a heuristic (assuming moving in 8 directions)
-        // /// @param tile A pointer to the Tile object representing the goal
-        // void calculateH(const Tile* tile);
+        
+        /// @brief Calculates the g-value used to determine the distance traveled
+        double calculateG(const Tile* parent);
 
         /// @brief Calculates the f-value used to determine the "shortest" path to the goal
-        void calculateF(const Tile* goal);
+        double calculateH(const Tile* goal);
 };
 
 struct TilePtrCompare {

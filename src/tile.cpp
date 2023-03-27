@@ -3,56 +3,63 @@
 
 Tile::Tile() {}
 
-Tile::Tile(int x, int y, int idx, sf::RectangleShape &shape) : x(x), y(y), idx(idx), shape(shape) {
-    shape.setOutlineColor(outlineTileColor);
-    shape.setOutlineThickness(outlineTileThickness);
+Tile::Tile(int x, int y, int idx, double dim) : x(x), y(y), idx(idx), shape(sf::Vector2f(dim, dim)) {
+    shape.setPosition(x * dim, y * dim);
+    shape.setOutlineColor(outlineColor);
+    shape.setOutlineThickness(outlineThickness);
 }
 
 Tile::~Tile() {}
 
-void Tile::setStartTile(void) {
+void Tile::setDefault() {
+    g = INT_MAX;
+    f = INT_MAX;
+    shape.setFillColor(defaultColor);
+}
+
+void Tile::setStart() {
     g = 0.;
     f = 0.;
 
-    shape.setFillColor(pathTileColor);
+    shape.setFillColor(pathColor);
 }
 
-void Tile::setGoalTile(void) {
-    shape.setFillColor(goalTileColor);
+void Tile::setGoal() {
+    shape.setFillColor(closedColor);
 }
 
-void Tile::setObstacleTile(void) {
-    shape.setFillColor(obstacleTileColor);
-    shape.setOutlineColor(outlineTileColor);
-    shape.setOutlineThickness(outlineTileThickness);
+void Tile::setObstacle() {
+    shape.setFillColor(obstacleColor);
 }
 
-void Tile::setVisited(void) {
-    shape.setFillColor(visitedTileColor);
-    shape.setOutlineColor(outlineTileColor);
-    shape.setOutlineThickness(outlineTileThickness);
+void Tile::setClosed() {
+    shape.setFillColor(closedColor);
 }
 
-void Tile::setPath(void) {
-    shape.setFillColor(pathTileColor);
-    shape.setOutlineColor(outlineTileColor);
-    shape.setOutlineThickness(outlineTileThickness);
+void Tile::setOpened() {
+    shape.setFillColor(openedColor);
 }
 
-void Tile::calculateF(const Tile* goal) {
-    // calculate g
-    g = parent->g + sqrt(pow(parent->x - x, 2) + pow(parent->y - y, 2));
+void Tile::setPath() {
+    shape.setFillColor(pathColor);
+}
 
-    // calculate h
-    // double h = abs(goal->x - x) + abs(goal->y - y);
+double Tile::calculateG(const Tile* parent) {
+    return parent->g + sqrt(pow(parent->x - x, 2) + pow(parent->y - y, 2));
+}
+
+double Tile::calculateH(const Tile* goal) {
     double dmax = std::max(abs(goal->x - x), abs(goal->y - y));
     double dmin = std::min(abs(goal->x - x), abs(goal->y - y));
 
-    double h = cd * dmin + ca * (dmax - dmin);
-
-    f = g + h;
+    return cd * dmin + ca * (dmax - dmin);
 }
 
 bool TilePtrCompare::operator()(const Tile* lhs, const Tile* rhs) const {
-    return lhs->f <= rhs->f;
+    if (lhs->f == rhs->f) {
+        return lhs->g < rhs->g;
+    }
+    else {
+        return lhs->f < rhs->f;
+    }
 }
