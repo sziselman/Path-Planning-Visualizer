@@ -43,8 +43,8 @@ void Tile::setPath() {
     shape.setFillColor(pathColor);
 }
 
-double Tile::calculateG(const Tile* parent) {
-    return parent->g + sqrt(pow(parent->x - x, 2) + pow(parent->y - y, 2));
+double Tile::calculateG(const Tile* p) {
+    return p->g + sqrt(pow(p->x - x, 2) + pow(p->y - y, 2));
 }
 
 double Tile::calculateH(const Tile* goal) {
@@ -52,6 +52,15 @@ double Tile::calculateH(const Tile* goal) {
     double dmin = std::min(abs(goal->x - x), abs(goal->y - y));
 
     return cd * dmin + ca * (dmax - dmin);
+}
+
+void Tile::updateParent(const Tile* p) {
+    parent = p;
+    g = calculateG(parent);
+}
+
+void Tile::updateF(double val) {
+    f = val;
 }
 
 bool TilePtrCompare::operator()(const Tile* lhs, const Tile* rhs) const {

@@ -66,10 +66,18 @@ struct Tile {
         void setPath();
         
         /// @brief Calculates the g-value used to determine the distance traveled
-        double calculateG(const Tile* parent);
+        double calculateG(const Tile* p);
 
         /// @brief Calculates the f-value used to determine the "shortest" path to the goal
         double calculateH(const Tile* goal);
+
+        /// @brief Updates the parent pointer and recalculates g
+        /// @param p The pointer to the parent tile
+        void updateParent(const Tile* p);
+
+        /// @brief Updates the current f-value
+        /// @param val The new f-value
+        void updateF(double val);
 };
 
 struct TilePtrCompare {

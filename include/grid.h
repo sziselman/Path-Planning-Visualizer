@@ -36,6 +36,9 @@ class Grid {
         /// @brief Generates a path to get from start to goal using A* Search Algorithm
         void solveAStar();
 
+        /// @brief Generates a path to get from start to goal using LPA* Incremental Search Algorithm
+        void solveLPAStar();
+
     private:
         // window variables
         sf::RenderWindow& window;

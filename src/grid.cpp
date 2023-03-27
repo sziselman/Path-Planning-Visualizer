@@ -88,16 +88,14 @@ void Grid::solveAStar() {
                 if (tileMap[successor]->f > f) {
 
                     open.erase(it);
-                    tileMap[successor]->parent = q;
-                    tileMap[successor]->g = g;
-                    tileMap[successor]->f = f;
+                    tileMap[successor]->updateParent(q);
+                    tileMap[successor]->updateF(f);
                     open.insert(tileMap[successor]);
                 }
             }
             else {
-                tileMap[successor]->parent = q;
-                tileMap[successor]->g = g;
-                tileMap[successor]->f = f;
+                tileMap[successor]->updateParent(q);
+                tileMap[successor]->updateF(f);
                 tileMap[successor]->setOpened();
                 open.insert(tileMap[successor]);
             }
@@ -105,6 +103,10 @@ void Grid::solveAStar() {
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
     getPath();
+}
+
+void Grid::solveLPAStar() {
+    return;
 }
 
 Tile* Grid::makeTileFromIdx(int idx) {
