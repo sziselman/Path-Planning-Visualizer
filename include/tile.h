@@ -78,6 +78,10 @@ struct Tile {
         /// @brief Updates the current f-value
         /// @param val The new f-value
         void updateF(double val);
+
+        /// @brief Updates the current g-value
+        /// @param val The new g-value
+        void updateG(double val);
 };
 
 struct TilePtrCompare {

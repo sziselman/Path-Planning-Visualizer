@@ -59,8 +59,12 @@ void Grid::updateStartGoalTiles() {
 void Grid::solveAStar() {
     std::set<int> closed;
     std::set<Tile*, TilePtrCompare> open;
+    
+    tileMap[start]->updateG(0.);
+    tileMap[start]->updateF(0.);
     open.insert(tileMap[start]);
 
+    double g, h, f;
     while (!open.empty()) {
 
         auto q = *open.begin();
@@ -79,14 +83,13 @@ void Grid::solveAStar() {
                 continue;
             }
     
-            double g = tileMap[successor]->calculateG(q);
-            double h = tileMap[successor]->calculateH(tileMap[goal]);
-            double f = g + h;
+            g = tileMap[successor]->calculateG(q);
+            h = tileMap[successor]->calculateH(tileMap[goal]);
+            f = g + h;
 
             auto it = open.find(tileMap[successor]);
             if (it != open.end()) {
                 if (tileMap[successor]->f > f) {
-
                     open.erase(it);
                     tileMap[successor]->updateParent(q);
                     tileMap[successor]->updateF(f);
@@ -103,10 +106,6 @@ void Grid::solveAStar() {
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
     getPath();
-}
-
-void Grid::solveLPAStar() {
-    return;
 }
 
 Tile* Grid::makeTileFromIdx(int idx) {
@@ -211,4 +210,5 @@ void Grid::getPath() {
         tileMap[idx]->setPath();
         idx = tileMap[idx]->parent->idx;
     }
+    tileMap[idx]->setPath();
 }

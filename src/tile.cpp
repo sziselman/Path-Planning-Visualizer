@@ -18,8 +18,6 @@ void Tile::setDefault() {
 }
 
 void Tile::setStart() {
-    g = 0.;
-    f = 0.;
     shape.setFillColor(pathColor);
 }
 
@@ -61,6 +59,10 @@ void Tile::updateParent(const Tile* p) {
 
 void Tile::updateF(double val) {
     f = val;
+}
+
+void Tile::updateG(double val) {
+    g = val;
 }
 
 bool TilePtrCompare::operator()(const Tile* lhs, const Tile* rhs) const {
