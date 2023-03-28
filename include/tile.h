@@ -17,7 +17,9 @@ struct Tile {
         sf::RectangleShape shape;
 
         double g;
-        double f;                               // g + h
+        double f;
+        double rhs;
+        std::pair<double, double> key;
         static constexpr double ca = 1.;        // cost of adjacent movement
         static constexpr double cd = 1.41421;   // cost of diagonal movements
 
@@ -71,6 +73,8 @@ struct Tile {
         /// @brief Calculates the f-value used to determine the "shortest" path to the goal
         double calculateH(const Tile* goal);
 
+        std::pair<double, double> calculateKeys(const Tile* goal);
+
         /// @brief Updates the parent pointer and recalculates g
         /// @param p The pointer to the parent tile
         void updateParent(const Tile* p);
@@ -84,10 +88,18 @@ struct Tile {
         void updateG(double val);
 };
 
-struct TilePtrCompare {
+struct AStarTilePtrCompare {
     /// @brief Overload on comparison operator, used to sort a set of Tile pointers
     /// @param lhs Pointer to the left-hand side Tile
     /// @param rhs Pointer to the right-hand side Tile
     /// @return True if the left-hand side Tile's f-value is less than the right-hand side Tile's f-vale, False otherwise
     bool operator()(const Tile* lhs, const Tile* rhs) const;
+};
+
+struct LPAStarTilePtrCompare {
+    /// @brief Overload on comparison operator, used to sort priority queue by k1 first, then k2
+    /// @param lhs Pointer to the left-hand side Tile
+    /// @param rhs Pointer to the right-hand side tile
+    /// @return True if left-hand side Tile's k1 value is less than the right-hand side Tile's k1 value. If equal, looks to k2
+    bool operator() (const Tile* lhs, const Tile* rhs) const;
 };

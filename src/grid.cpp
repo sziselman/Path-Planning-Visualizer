@@ -58,8 +58,8 @@ void Grid::updateStartGoalTiles() {
 
 void Grid::solveAStar() {
     std::set<int> closed;
-    std::set<Tile*, TilePtrCompare> open;
-    
+    std::set<Tile*, AStarTilePtrCompare> open;
+
     tileMap[start]->updateG(0.);
     tileMap[start]->updateF(0.);
     open.insert(tileMap[start]);
@@ -107,6 +107,50 @@ void Grid::solveAStar() {
     }
     getPath();
 }
+
+void Grid::solveLPAStar() {
+    std::set<int> closed;
+    std::set<Tile*, LPAStarTilePtrCompare> pq;
+
+    tileMap[start]->rhs = 0.;
+    auto key = tileMap[start]->calculateKeys(tileMap[goal]);
+    tileMap[start]->key = key;
+    pq.insert(tileMap[start]);
+
+    auto q = *pq.begin();
+    int i = 0;
+    while (i < 5) {
+    // while (q->key < tileMap[goal]->calculateKeys(tileMap[goal]) || tileMap[goal]->rhs != tileMap[goal]->g) {
+        std::cout << "++++ priority queue ++++" << std::endl;
+        for (auto qu : pq) {
+            std::cout << "  tile " << qu->idx << ", address " << qu << ", key {" << qu->key.first << ", " << qu->key.second << "}" << std::endl;
+        }
+        auto q = *pq.begin();
+        pq.erase(pq.begin());
+
+        std::cout << "q is " << q->idx << ", address " << q << std::endl;
+        if (q->g > q->rhs) {
+            q->updateG(q->rhs);
+            std::cout << "  updating g to rhs value " << q->g << std::endl;
+        }
+        else {
+            q->updateG(INT_MAX);
+        //     if (q->idx != start) {
+        //         for (int successor : getSuccessors(q->idx)) {
+        //             q->rhs = std::min(q->rhs, tileMap[successor]->g + tileMap[successor]->calculateH(tileMap[goal]));
+        //             if (q->g != q->rhs) {
+        //                 pq.insert(q);
+        //             }
+        //         }
+        //     }
+        }
+        // q = *pq.begin();
+
+        i++;
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(100)); 
+}
+
 
 Tile* Grid::makeTileFromIdx(int idx) {
     int x = idx % xTiles;

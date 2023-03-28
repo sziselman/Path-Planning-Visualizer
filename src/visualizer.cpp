@@ -34,8 +34,8 @@ void Visualizer::update(void) {
             }
     }
     else {
-        grid.solveAStar();
-        // grid.solveLPAStar();
+        // grid.solveAStar();
+        grid.solveLPAStar();
         solveSearch = false;
     }
 

@@ -14,6 +14,7 @@ Tile::~Tile() {}
 void Tile::setDefault() {
     g = INT_MAX;
     f = INT_MAX;
+    rhs = INT_MAX;
     shape.setFillColor(defaultColor);
 }
 
@@ -52,6 +53,12 @@ double Tile::calculateH(const Tile* goal) {
     return cd * dmin + ca * (dmax - dmin);
 }
 
+std::pair<double, double> Tile::calculateKeys(const Tile* goal) {
+    double k1 = std::min(g, rhs) + calculateH(goal);
+    double k2 = std::min(g, rhs);
+    return std::make_pair(k1, k2);
+}
+
 void Tile::updateParent(const Tile* p) {
     parent = p;
     g = calculateG(parent);
@@ -65,11 +72,15 @@ void Tile::updateG(double val) {
     g = val;
 }
 
-bool TilePtrCompare::operator()(const Tile* lhs, const Tile* rhs) const {
+bool AStarTilePtrCompare::operator()(const Tile* lhs, const Tile* rhs) const {
     if (lhs->f == rhs->f) {
         return lhs->g < rhs->g;
     }
     else {
         return lhs->f < rhs->f;
     }
+}
+
+bool LPAStarTilePtrCompare::operator()(const Tile* lhs, const Tile* rhs) const {
+    return lhs->key < rhs->key;
 }
