@@ -5,10 +5,12 @@
 #ifndef _A_STAR_H
 #define _A_STAR_H
 
-#include "search.h"
 #include "grid.h"
 #include "tile.h"
+#include "search.h"
 
+
+class Grid;
 
 class AStar : public Search {
     public:

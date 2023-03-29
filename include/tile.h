@@ -28,6 +28,10 @@ struct Tile {
 
         const Tile* parent = nullptr;
 
+        // sets for LPA*
+        std::set<Tile*> predecessors;
+        std::set<Tile*> successors;
+
         // visual properties of tiles
         sf::Color defaultColor = sf::Color(251, 174, 210);
         sf::Color openedColor = sf::Color(246, 120, 40);
@@ -89,6 +93,12 @@ struct Tile {
         /// @brief Updates the current g-value
         /// @param val The new g-value
         void updateG(double val);
+
+        /// @brief Updates the current rhs value
+        /// @param val The new rhs value
+        void updateRHS(double val);
+
+        void updateKey(std::pair<double, double> keyVal);
 };
 
 struct AStarTilePtrCompare {

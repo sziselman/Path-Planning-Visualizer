@@ -13,6 +13,8 @@
 #include <set>
 
 #include "tile.h"
+#include "astar.h"
+#include "lpastar.h"
 
 
 class Grid {
@@ -44,10 +46,11 @@ class Grid {
         /// @brief Updates the start or goal tiles if the user left clicks the start or goal tires
         void updateStartGoalTiles();
 
-        /// @brief Generates a path to get from start to goal using LPA* Incremental Search Algorithm
-        void solveLPAStar();
-
+        /// @brief Make Grid class a friend to AStar
         friend class AStar;
+
+        /// @brief Make Grid class a friend to LPAStar
+        friend class LPAStar;
 
     private:
         // window variables

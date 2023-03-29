@@ -25,8 +25,13 @@ void Visualizer::update(void) {
                 grid.updateStartGoalTiles();
             }
 
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter)) {
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
                 searchType = "astar";
+                solveSearch = true;
+            }
+
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::L)) {
+                searchType = "lpastar";
                 solveSearch = true;
             }
 
@@ -38,8 +43,12 @@ void Visualizer::update(void) {
         if (searchType == "astar") {
             AStar algo(&grid);
             algo.solve(grid.getStart(), grid.getGoal());
-            std::this_thread::sleep_for(std::chrono::milliseconds(120));
         }
+        else if (searchType == "lpastar") {
+            LPAStar algo(&grid);
+            algo.solve(grid.getStart(), grid.getGoal());
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(120));
         solveSearch = false;
     }
 

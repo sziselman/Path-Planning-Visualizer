@@ -1,9 +1,7 @@
 #include "astar.h"
 
 
-AStar::AStar(Grid* grid) : grid(grid) {
-
-}
+AStar::AStar(Grid* grid) : grid(grid) {}
 
 void AStar::solve(Tile* st, Tile* go) {
     std::cout << "solving search..." << std::endl;
