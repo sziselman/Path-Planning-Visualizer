@@ -23,7 +23,8 @@ void LPAStar::updateTile(Tile* tile) {
         tile->rhs = INT_MAX;
         // update the rhs value based on predecessors
         for (auto predecessor : tile->predecessors) {
-            tile->rhs = std::min(tile->rhs, predecessor->g + predecessor->calculateH(goal));
+            // tile->rhs = std::min(tile->rhs, predecessor->g + predecessor->calculateH(goal));
+            tile->rhs = INT_MAX;
         }
 
         auto it = open.find(tile);

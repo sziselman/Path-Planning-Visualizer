@@ -31,7 +31,7 @@ void AStar::solve(Tile* st, Tile* go) {
             }
 
             g = successor->calculateG(q);
-            h = successor->calculateH(goal);
+            h = calculateH(successor);
             f = g + h;
 
             auto it = open.find(successor);
@@ -54,4 +54,11 @@ void AStar::solve(Tile* st, Tile* go) {
     }
     grid->getPath();
     std::cout << "completed search!\n" << std::endl;
+}
+
+double AStar::calculateH(Tile* tile) {
+    double dmax = std::max(abs(goal->x - tile->x), abs(goal->y - tile->y));
+    double dmin = std::min(abs(goal->x - tile->x), abs(goal->y - tile->y));
+
+    return cd * dmin + ca * (dmax - dmin);
 }

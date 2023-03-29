@@ -23,8 +23,8 @@ struct Tile {
         double f;
         double rhs;
         std::pair<double, double> key;
-        static constexpr double ca = 1.;        // cost of adjacent movement
-        static constexpr double cd = 1.41421;   // cost of diagonal movements
+        // static constexpr double ca = 1.;        // cost of adjacent movement
+        // static constexpr double cd = 1.41421;   // cost of diagonal movements
 
         const Tile* parent = nullptr;
 
@@ -77,8 +77,8 @@ struct Tile {
         /// @brief Calculates the g-value used to determine the distance traveled
         double calculateG(const Tile* p);
 
-        /// @brief Calculates the f-value used to determine the "shortest" path to the goal
-        double calculateH(const Tile* goal);
+        // /// @brief Calculates the f-value used to determine the "shortest" path to the goal
+        // double calculateH(const Tile* goal);
 
         std::pair<double, double> calculateKeys(const Tile* goal);
 

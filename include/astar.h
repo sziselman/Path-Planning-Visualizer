@@ -31,6 +31,14 @@ class AStar : public Search {
 
         std::set<int> closed;
         std::set<Tile*, AStarTilePtrCompare> open;
+
+        static constexpr double ca = 1.;        // cost of adjacent movement
+        static constexpr double cd = 1.41421;   // cost of diagonal movements
+
+        /// @brief Calculates the estimated cost to move from current to goal using diagonal distance
+        /// @param goal Pointer to the goal tile
+        /// @return The diagonal distance
+        double calculateH(Tile* goal);
 };
 
 #endif
