@@ -1,6 +1,9 @@
 /**
  * @brief Tile class used for representing and visualizing nodes in the search graph
 */
+#ifndef _TILE_H
+#define _TILE_H
+
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include <cfloat>
@@ -103,3 +106,5 @@ struct LPAStarTilePtrCompare {
     /// @return True if left-hand side Tile's k1 value is less than the right-hand side Tile's k1 value. If equal, looks to k2
     bool operator() (const Tile* lhs, const Tile* rhs) const;
 };
+
+#endif

@@ -1,10 +1,14 @@
 /**
  * @brief Visualizer class for displaying the rendered window
 */
+#ifndef _VISUALIZER_H
+#define _VISUALIZER_H
 
 #include <SFML/Graphics.hpp>
+#include <string.h>
 
 #include "grid.h"
+#include "astar.h"
 
 
 class Visualizer {
@@ -32,4 +36,7 @@ class Visualizer {
         sf::Mouse mouse;
         Grid grid;
         bool solveSearch = false;
+        std::string searchType;
 };
+
+#endif

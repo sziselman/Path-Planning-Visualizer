@@ -26,6 +26,7 @@ void Visualizer::update(void) {
             }
 
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter)) {
+                searchType = "astar";
                 solveSearch = true;
             }
 
@@ -34,8 +35,11 @@ void Visualizer::update(void) {
             }
     }
     else {
-        // grid.solveAStar();
-        grid.solveLPAStar();
+        if (searchType == "astar") {
+            AStar algo(&grid);
+            algo.solve(grid.getStart(), grid.getGoal());
+            std::this_thread::sleep_for(std::chrono::milliseconds(120));
+        }
         solveSearch = false;
     }
 

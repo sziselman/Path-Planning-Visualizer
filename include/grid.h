@@ -1,6 +1,8 @@
 /**
- * @brief Grid class used for organizing grid blocks for path planning visualizer
+ * @brief Grid class used for organizing grid tiles for path planning visualizer
 */
+#ifndef _GRID_H
+#define _GRID_H
 
 #include <SFML/Graphics.hpp>
 #include <chrono>
@@ -25,6 +27,14 @@ class Grid {
         /// @brief Destructor for Grid class
         ~Grid();
 
+        /// @brief Getter for the start tile
+        /// @return Pointer to the start tile
+        Tile* getStart();
+
+        /// @brief Getter for the goal tile
+        /// @return Pointer to the goal tile
+        Tile* getGoal();
+
         /// @brief Displays start, goal, obstacle, and visited tiles
         void displayTiles();
 
@@ -34,11 +44,10 @@ class Grid {
         /// @brief Updates the start or goal tiles if the user left clicks the start or goal tires
         void updateStartGoalTiles();
 
-        /// @brief Generates a path to get from start to goal using A* Search Algorithm
-        void solveAStar();
-
         /// @brief Generates a path to get from start to goal using LPA* Incremental Search Algorithm
         void solveLPAStar();
+
+        friend class AStar;
 
     private:
         // window variables
@@ -82,10 +91,12 @@ class Grid {
 
         /// @brief Checks for all valid successors that are in bounds of the grid and not obstacles
         /// @param idx The index location of the tile to get successors to
-        /// @return A vector containing index locations of all the valid successors
-        std::vector<int> getSuccessors(int idx);
+        /// @return A vector containing pointers to the valid neighbors
+        std::vector<Tile*> getSuccessors(int idx);
 
         /// @brief Traces back the path generated and updates the tile map to reflect path tiles
         void getPath();
 
 };
+
+#endif
