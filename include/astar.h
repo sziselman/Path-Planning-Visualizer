@@ -36,9 +36,15 @@ class AStar : public Search {
         static constexpr double cd = 1.41421;   // cost of diagonal movements
 
         /// @brief Calculates the estimated cost to move from current to goal using diagonal distance
-        /// @param goal Pointer to the goal tile
-        /// @return The diagonal distance
-        double calculateH(Tile* goal);
+        /// @param tile Pointer to the current tile
+        /// @return The diagonal distance from current to goal
+        double calculateH(Tile* tile);
+
+        /// @brief Calculates the cost to travel along the traversed path
+        /// @param from Pointer to the predecessor tile
+        /// @param to Pointer to the current tile
+        /// @return The distance traveled from predecessor tile to current tile
+        double calculateG(Tile* from, Tile* to);
 };
 
 #endif

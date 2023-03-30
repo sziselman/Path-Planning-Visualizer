@@ -30,7 +30,7 @@ void AStar::solve(Tile* st, Tile* go) {
                 continue;
             }
 
-            g = successor->calculateG(q);
+            g = calculateG(q, successor);
             h = calculateH(successor);
             f = g + h;
 
@@ -39,12 +39,14 @@ void AStar::solve(Tile* st, Tile* go) {
                 if (successor->f > f) {
                     open.erase(it);
                     successor->updateParent(q);
+                    successor->updateG(g);
                     successor->updateF(f);
                     open.insert(successor);
                 }
             }
             else {
                 successor->updateParent(q);
+                successor->updateG(g);
                 successor->updateF(f);
                 successor->setOpened();
                 open.insert(successor);
@@ -60,4 +62,8 @@ double AStar::calculateH(Tile* tile) {
     double dmax = std::max(abs(goal->x - tile->x), abs(goal->y - tile->y));
     double dmin = std::min(abs(goal->x - tile->x), abs(goal->y - tile->y));
     return cd * dmin + ca * (dmax - dmin);
+}
+
+double AStar::calculateG(Tile* from, Tile* to) {
+    return from->g + sqrt(pow(from->x - to->x, 2) + pow(from->y - to->y, 2));
 }

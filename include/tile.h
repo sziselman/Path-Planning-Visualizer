@@ -73,9 +73,6 @@ struct Tile {
 
         /// @brief Changes the tile to the traversed path color
         void setPath();
-        
-        /// @brief Calculates the g-value used to determine the distance traveled
-        double calculateG(const Tile* p);
 
         /// @brief Updates the parent pointer and recalculates g
         /// @param p The pointer to the parent tile

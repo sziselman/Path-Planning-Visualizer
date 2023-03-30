@@ -35,7 +35,16 @@ class LPAStar : public Search {
 
         void computeShortestPath();
 
+        /// @brief Calculates the estimated cost to move from current to goal using diagonal distance
+        /// @param tile Pointer to the current tile
+        /// @return The diagonal distance from current to goal
         double calculateH(Tile* tile);
+
+        /// @brief Calculates the cost to travel along the traversed path
+        /// @param from Pointer to the predecessor tile
+        /// @param to Pointer to the current tile
+        /// @return The distance traveled from predecessor tile to current tile
+        double calculateG(Tile* from, Tile* to);
 
         std::pair<double, double> calculateKey(Tile* tile);
 };

@@ -42,13 +42,8 @@ void Tile::setPath() {
     shape.setFillColor(pathColor);
 }
 
-double Tile::calculateG(const Tile* p) {
-    return p->g + sqrt(pow(p->x - x, 2) + pow(p->y - y, 2));
-}
-
 void Tile::updateParent(const Tile* p) {
     parent = p;
-    g = calculateG(parent);
 }
 
 void Tile::updateF(double val) {
