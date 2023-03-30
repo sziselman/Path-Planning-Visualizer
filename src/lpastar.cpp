@@ -14,17 +14,60 @@ void LPAStar::solve(Tile* st, Tile* go) {
         computeShortestPath();
         break;
     }
-    grid->getPath();
+    // grid->getPath();
     std::cout << "completed search!\n" << std::endl;
 }
 
+void LPAStar::initialize() {
+    start->updateRHS(0.);
+    auto keyVal = calculateKey(start);
+    start->updateKey(keyVal);
+    open.insert(start);
+}
+
+void LPAStar::computeShortestPath() {
+    std::cout << "computing shortest path..." << std::endl;
+    auto q = *open.begin();
+    while (q->key < calculateKey(goal) || goal->rhs != goal->g) {
+        q = *open.begin();
+        open.erase(open.begin());
+        q->setClosed();
+        closed.insert(q->idx);
+
+        std::cout << "q is " << q->idx << ", g=" << q->g << ", rhs=" << q->rhs << std::endl;
+
+        if (q->g > q->rhs) {
+            q->updateG(q->rhs);
+        }
+        else {
+            q->updateG(INT_MAX);
+            updateTile(q);
+        }
+
+        for (auto successor : grid->getSuccessors(q->idx)) {
+            successor->predecessors.insert(q);
+            updateTile(successor);
+        }
+
+        grid->displayTiles();
+    }
+}
+
+double LPAStar::calculateH(Tile* tile) {
+    double dmax = std::max(abs(goal->x - tile->x), abs(goal->y - tile->y));
+    double dmin = std::min(abs(goal->x - tile->x), abs(goal->y - tile->y));
+    return cd * dmin + ca * (dmax - dmin);
+}
+
 void LPAStar::updateTile(Tile* tile) {
+    std::cout << "updating tile " << tile->idx << std::endl;
     if (tile != start) {
         tile->rhs = INT_MAX;
+        std::cout << "searching predecessors to update rhs" << std::endl;
         // update the rhs value based on predecessors
         for (auto predecessor : tile->predecessors) {
-            // tile->rhs = std::min(tile->rhs, predecessor->g + predecessor->calculateH(goal));
-            tile->rhs = INT_MAX;
+            tile->updateRHS(std::min(tile->rhs, predecessor->g + calculateH(predecessor)));
+            std::cout << "  tile " << predecessor->idx << ", rhs=" << predecessor->rhs << std::endl;
         }
 
         auto it = open.find(tile);
@@ -37,33 +80,11 @@ void LPAStar::updateTile(Tile* tile) {
             open.insert(tile);
         }
     }
+    std::cout << "finished updating tile\n" << std::endl;
 }
 
-void LPAStar::initialize() {
-    start->updateRHS(0.);
-    auto keyVal = start->calculateKeys(goal);
-    start->updateKey(keyVal);
-    open.insert(start);
-}
-
-void LPAStar::computeShortestPath() {
-
-    auto q = *open.begin();
-    while (q->key < goal->calculateKeys(goal) || goal->rhs != goal->g) {
-        q = *open.begin();
-        open.erase(open.begin());
-        closed.insert(q->idx);
-
-        if (q->g > q->rhs) {
-            q->updateG(q->rhs);
-        }
-        else {
-            q->updateG(INT_MAX);
-            updateTile(q);
-        }
-
-        for (auto successor : grid->getSuccessors(q->idx)) {
-            updateTile(successor);
-        }
-    }
+std::pair<double, double> LPAStar::calculateKey(Tile* tile) {
+    double k1 = std::min(tile->g, tile->rhs) + calculateH(tile);
+    double k2 = std::min(tile->g, tile->rhs);
+    return std::make_pair(k1, k2);
 }

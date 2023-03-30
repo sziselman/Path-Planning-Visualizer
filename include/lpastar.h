@@ -28,9 +28,16 @@ class LPAStar : public Search {
         std::set<int> closed;
         std::set<Tile*, LPAStarTilePtrCompare> open;
 
+        static constexpr double ca = 1.;        // cost of adjacent movement
+        static constexpr double cd = 1.41421;   // cost of diagonal movements
+
         void initialize();
 
         void computeShortestPath();
+
+        double calculateH(Tile* tile);
+
+        std::pair<double, double> calculateKey(Tile* tile);
 };
 
 #endif

@@ -59,6 +59,5 @@ void AStar::solve(Tile* st, Tile* go) {
 double AStar::calculateH(Tile* tile) {
     double dmax = std::max(abs(goal->x - tile->x), abs(goal->y - tile->y));
     double dmin = std::min(abs(goal->x - tile->x), abs(goal->y - tile->y));
-
     return cd * dmin + ca * (dmax - dmin);
 }

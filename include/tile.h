@@ -77,11 +77,6 @@ struct Tile {
         /// @brief Calculates the g-value used to determine the distance traveled
         double calculateG(const Tile* p);
 
-        // /// @brief Calculates the f-value used to determine the "shortest" path to the goal
-        // double calculateH(const Tile* goal);
-
-        std::pair<double, double> calculateKeys(const Tile* goal);
-
         /// @brief Updates the parent pointer and recalculates g
         /// @param p The pointer to the parent tile
         void updateParent(const Tile* p);
@@ -98,6 +93,8 @@ struct Tile {
         /// @param val The new rhs value
         void updateRHS(double val);
 
+        /// @brief Updates the key value used to sort the priority queue
+        /// @param keyVal The pair of key values, k1 and k2
         void updateKey(std::pair<double, double> keyVal);
 };
 

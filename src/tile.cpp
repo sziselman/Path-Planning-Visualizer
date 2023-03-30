@@ -46,20 +46,6 @@ double Tile::calculateG(const Tile* p) {
     return p->g + sqrt(pow(p->x - x, 2) + pow(p->y - y, 2));
 }
 
-// double Tile::calculateH(const Tile* goal) {
-//     double dmax = std::max(abs(goal->x - x), abs(goal->y - y));
-//     double dmin = std::min(abs(goal->x - x), abs(goal->y - y));
-
-//     return cd * dmin + ca * (dmax - dmin);
-// }
-
-std::pair<double, double> Tile::calculateKeys(const Tile* goal) {
-    // double k1 = std::min(g, rhs) + calculateH(goal);
-    // double k2 = std::min(g, rhs);
-    // return std::make_pair(k1, k2);
-    return std::make_pair(0., 0.);
-}
-
 void Tile::updateParent(const Tile* p) {
     parent = p;
     g = calculateG(parent);
