@@ -28,7 +28,16 @@ void LPAStar::initialize() {
 void LPAStar::computeShortestPath() {
     std::cout << "computing shortest path..." << std::endl;
     auto q = *open.begin();
-    while (q->key < calculateKey(goal) || goal->rhs != goal->g) {
+    int i = 0;
+    while (i < 5) {
+    // while (q->key < calculateKey(goal) || goal->rhs != goal->g) {
+
+        std::cout << "\n\n\n++++ updated priority queue ++++" << std::endl;
+        for (auto o : open) {
+            std::cout << "   tile " << o->idx << ", g=" << o->g << ", k1=" << o->key.first << ", k2=" << o->key.second << std::endl;
+        }
+
+
         q = *open.begin();
         open.erase(open.begin());
         q->setClosed();
@@ -50,6 +59,7 @@ void LPAStar::computeShortestPath() {
         }
 
         grid->displayTiles();
+        i++;
     }
 }
 
@@ -73,10 +83,13 @@ void LPAStar::updateTile(Tile* tile) {
         auto it = open.find(tile);
         // if priority queue is in open list, remove it
         if (it != open.end()) {
+            std::cout << "  removing from priority queue" << std::endl;
             open.erase(it);
         }
         // if tile is locally inconsistent, put that shit back
         if (tile->g != tile->rhs) {
+            std::cout << "  locally inconsistent, adding to priority queue" << std::endl;
+            std::cout << "  address " << tile << std::endl;
             open.insert(tile);
         }
     }
