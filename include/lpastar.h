@@ -47,6 +47,8 @@ class LPAStar : public Search {
         double calculateG(Tile* from, Tile* to);
 
         std::pair<double, double> calculateKey(Tile* tile);
+
+        void getPath();
 };
 
 #endif

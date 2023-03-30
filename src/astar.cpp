@@ -54,7 +54,7 @@ void AStar::solve(Tile* st, Tile* go) {
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
-    grid->getPath();
+    getPath();
     std::cout << "completed search!\n" << std::endl;
 }
 
@@ -66,4 +66,13 @@ double AStar::calculateH(Tile* tile) {
 
 double AStar::calculateG(Tile* from, Tile* to) {
     return from->g + sqrt(pow(from->x - to->x, 2) + pow(from->y - to->y, 2));
+}
+
+void AStar::getPath() {
+    Tile* curr = goal;
+    while (curr->parent != nullptr) {
+        curr->setPath();
+        curr = curr->parent;
+    }
+    curr->setPath();
 }

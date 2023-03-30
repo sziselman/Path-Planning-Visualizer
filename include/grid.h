@@ -96,10 +96,6 @@ class Grid {
         /// @param idx The index location of the tile to get successors to
         /// @return A vector containing pointers to the valid neighbors
         std::vector<Tile*> getSuccessors(int idx);
-
-        /// @brief Traces back the path generated and updates the tile map to reflect path tiles
-        void getPath();
-
 };
 
 #endif

@@ -9,12 +9,8 @@ void LPAStar::solve(Tile* st, Tile* go) {
     goal = go;
 
     initialize();
-
-    while (true) {
-        computeShortestPath();
-        break;
-    }
-    grid->getPath();
+    computeShortestPath();
+    getPath();
     std::cout << "completed search!\n" << std::endl;
 }
 
@@ -26,7 +22,6 @@ void LPAStar::initialize() {
 }
 
 void LPAStar::computeShortestPath() {
-    std::cout << "computing shortest path..." << std::endl;
     auto q = *open.begin();
     // int i = 0;
     // while (i < 5) {
@@ -44,6 +39,9 @@ void LPAStar::computeShortestPath() {
         closed.insert(q->idx);
 
         std::cout << "\n\nq is " << q->idx << ", g=" << q->g << ", rhs=" << q->rhs << std::endl;
+        std::cout << "k1=" << q->key.first << ", k2=" << q->key.second << std::endl;
+
+        std::cout << "\n\ngoal k1=" << goal->key.first << ", k2=" << goal->key.second << std::endl;
 
         if (q->g > q->rhs) {
             q->updateG(q->rhs);
@@ -75,7 +73,6 @@ void LPAStar::updateTile(Tile* tile) {
         std::cout << "  searching predecessors to update rhs" << std::endl;
         // update the rhs value based on predecessors
         for (auto predecessor : tile->predecessors) {
-            std::cout << "  predecessor g=" << predecessor->g << ", dist to " << calculateG(predecessor, tile) << std::endl;
             tile->updateRHS(std::min(tile->rhs, calculateG(predecessor, tile)));
             std::cout << "  tile " << tile->idx << ", rhs=" << tile->rhs << std::endl;
         }
@@ -95,7 +92,6 @@ void LPAStar::updateTile(Tile* tile) {
             open.insert(tile);
         }
     }
-    std::cout << "  finished updating tile\n" << std::endl;
 }
 
 double LPAStar::calculateH(Tile* tile) {
@@ -112,4 +108,21 @@ std::pair<double, double> LPAStar::calculateKey(Tile* tile) {
     double k1 = std::min(tile->g, tile->rhs) + calculateH(tile);
     double k2 = std::min(tile->g, tile->rhs);
     return std::make_pair(k1, k2);
+}
+
+void LPAStar::getPath() {
+    std::cout << "getting path" << std::endl;
+    Tile* curr = goal;
+    
+    std::set<Tile*, AStarTilePtrCompare> preds;
+    while (curr != start) {
+        std::cout << "curr tile " << curr->idx << std::endl;
+        curr->setPath();
+
+        // sort predecessors in a new set
+        preds.clear();
+        preds.insert(curr->predecessors.begin(), curr->predecessors.end());
+        curr = *preds.begin();
+    }
+    curr->setPath();
 }

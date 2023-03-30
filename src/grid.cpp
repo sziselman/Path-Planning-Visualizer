@@ -184,13 +184,3 @@ std::vector<Tile*> Grid::getSuccessors(int idx) {
     }
     return successors;
 }
-
-void Grid::getPath() {
-    int idx = goal;
-    int parentIdx;
-    while (tileMap[idx]->parent != nullptr) {
-        tileMap[idx]->setPath();
-        idx = tileMap[idx]->parent->idx;
-    }
-    tileMap[idx]->setPath();
-}

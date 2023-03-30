@@ -23,14 +23,11 @@ struct Tile {
         double f;
         double rhs;
         std::pair<double, double> key;
-        // static constexpr double ca = 1.;        // cost of adjacent movement
-        // static constexpr double cd = 1.41421;   // cost of diagonal movements
 
-        const Tile* parent = nullptr;
+        Tile* parent = nullptr;
 
         // sets for LPA*
         std::set<Tile*> predecessors;
-        std::set<Tile*> successors;
 
         // visual properties of tiles
         sf::Color defaultColor = sf::Color(251, 174, 210);
@@ -76,7 +73,7 @@ struct Tile {
 
         /// @brief Updates the parent pointer and recalculates g
         /// @param p The pointer to the parent tile
-        void updateParent(const Tile* p);
+        void updateParent(Tile* p);
 
         /// @brief Updates the current f-value
         /// @param val The new f-value

@@ -42,7 +42,7 @@ void Tile::setPath() {
     shape.setFillColor(pathColor);
 }
 
-void Tile::updateParent(const Tile* p) {
+void Tile::updateParent(Tile* p) {
     parent = p;
 }
 

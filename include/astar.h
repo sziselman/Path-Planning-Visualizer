@@ -45,6 +45,8 @@ class AStar : public Search {
         /// @param to Pointer to the current tile
         /// @return The distance traveled from predecessor tile to current tile
         double calculateG(Tile* from, Tile* to);
+
+        void getPath();
 };
 
 #endif
