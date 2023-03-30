@@ -72,5 +72,15 @@ bool AStarTilePtrCompare::operator()(const Tile* lhs, const Tile* rhs) const {
 }
 
 bool LPAStarTilePtrCompare::operator()(const Tile* lhs, const Tile* rhs) const {
-    return lhs->key <= rhs->key;
+    if (lhs->key == rhs->key) {
+        if (lhs->g == rhs->g) {
+            return lhs->idx < rhs->idx;
+        }
+        else {
+            return lhs->g < rhs->g;
+        }
+    }
+    else {
+        return lhs->key < rhs->key;
+    }
 }
