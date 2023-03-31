@@ -46,6 +46,9 @@ class Grid {
         /// @brief Updates the start or goal tiles if the user left clicks the start or goal tires
         void updateStartGoalTiles();
 
+        /// @brief Adds and updates obstacle position to make a "snake" that traverses the inner boundary of the grid
+        void makeSnakeObstacle();
+
         /// @brief Make Grid class a friend to AStar
         friend class AStar;
 
@@ -67,6 +70,11 @@ class Grid {
         int goal;
         std::map<int, Tile*> tileMap;
         std::set<int> obstacles;
+
+        // snake variables
+        std::vector<int> snakeTiles;
+        int snakeTail = 0;
+        int snakeLen;
 
         // private helper functions
         /// @brief Makes a Tile object based on the index location on the grid

@@ -23,8 +23,6 @@ void LPAStar::initialize() {
 
 void LPAStar::computeShortestPath() {
     auto q = *open.begin();
-    // int i = 0;
-    // while (i < 5) {
     while (q->key < calculateKey(goal) || goal->rhs != goal->g) {
 
         std::cout << "\n\n\n++++ updated priority queue ++++" << std::endl;
@@ -60,7 +58,6 @@ void LPAStar::computeShortestPath() {
 
         grid->displayTiles();
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
-        // i++;
     }
 }
 
@@ -112,15 +109,11 @@ std::pair<double, double> LPAStar::calculateKey(Tile* tile) {
 }
 
 void LPAStar::getPath() {
-    std::cout << "getting path" << std::endl;
     Tile* curr = goal;
     
     std::set<Tile*, AStarTilePtrCompare> preds;
     while (curr != start) {
-        std::cout << "curr tile " << curr->idx << std::endl;
         curr->setPath();
-
-        // sort predecessors in a new set
         preds.clear();
         preds.insert(curr->predecessors.begin(), curr->predecessors.end());
         curr = *preds.begin();

@@ -133,32 +133,6 @@ void Grid::setNewTile(bool isStart) {
     std::this_thread::sleep_for(std::chrono::milliseconds(300));
 }
 
-// std::vector<int> Grid::getSuccessors(int idx) {
-//     std::vector<std::pair<int, int>> successorPoses;
-    
-//     int x = tileMap[idx]->x;
-//     int y = tileMap[idx]->y;
-
-//     successorPoses.push_back(std::make_pair(x-1, y-1));     // north-west
-//     successorPoses.push_back(std::make_pair(x, y-1));       // north
-//     successorPoses.push_back(std::make_pair(x+1, y-1));     // north-east
-//     successorPoses.push_back(std::make_pair(x+1, y));       // east
-//     successorPoses.push_back(std::make_pair(x+1, y+1));     // south-east
-//     successorPoses.push_back(std::make_pair(x, y+1));       // south
-//     successorPoses.push_back(std::make_pair(x-1, y+1));     // south-west
-//     successorPoses.push_back(std::make_pair(x-1, y));       // west
-
-//     std::vector<int> successors;
-
-//     for (auto pos : successorPoses) {
-//         int idx = getTileIdxFromTilePos(pos);
-//         if (isInBounds(pos) && obstacles.find(idx) == obstacles.end()) {
-//             successors.push_back(idx);
-//         }
-//     }
-//     return successors;
-// }
-
 std::vector<Tile*> Grid::getSuccessors(int idx) {
     std::vector<std::pair<int, int>> successorPoses;
     
@@ -183,4 +157,50 @@ std::vector<Tile*> Grid::getSuccessors(int idx) {
         }
     }
     return successors;
+}
+
+void Grid::makeSnakeObstacle() {
+    snakeLen = xTiles / 2;
+    int xmin = 1;
+    int xmax = xTiles - 2;
+    int ymin = 1;
+    int ymax = yTiles - 2;
+
+    if (snakeTiles.empty()) {
+        // northern wall
+        for (int i = xmin; i < xmax; i++) {
+            snakeTiles.push_back(getTileIdxFromTilePos(std::make_pair(i, ymin)));
+        }
+        // eastern wall
+        for (int j = ymin; j < ymax; j++) {
+            snakeTiles.push_back(getTileIdxFromTilePos(std::make_pair(xmax, j)));
+        }
+        // southern wall
+        for (int k = xmax; k > xmin; k--) {
+            snakeTiles.push_back(getTileIdxFromTilePos(std::make_pair(k, ymax)));
+        }
+        // eastern wall
+        for (int l = ymax; l > ymin; l--) {
+            snakeTiles.push_back(getTileIdxFromTilePos(std::make_pair(xmin, l)));
+        }
+    }
+
+    for (auto o : obstacles) {
+        tileMap[o]->setDefault();
+    }
+
+    snakeTail = (snakeTail + 1) % int(snakeTiles.size()-1);
+    std::cout << snakeTiles.size() << std::endl;
+    std::cout << "idx " << snakeTail << std::endl;
+
+    // initialize the first idx and all preceding it
+    for (int s = snakeTail; s < snakeTail + snakeLen; s++) {
+        int idx = s % int(snakeTiles.size());
+        obstacles.insert(snakeTiles[idx]);
+        tileMap[snakeTiles[s]]->setObstacle();
+    }
+
+    displayTiles();
+    std::this_thread::sleep_for(std::chrono::milliseconds(120));
+
 }

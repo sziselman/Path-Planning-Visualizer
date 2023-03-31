@@ -45,11 +45,13 @@ void Visualizer::update(void) {
             algo.solve(grid.getStart(), grid.getGoal());
         }
         else if (searchType == "lpastar") {
-            LPAStar algo(&grid);
-            algo.solve(grid.getStart(), grid.getGoal());
+            // LPAStar algo(&grid);
+            // algo.solve(grid.getStart(), grid.getGoal());
+
+            grid.makeSnakeObstacle();
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(120));
-        solveSearch = false;
+        // solveSearch = false;
     }
 
     window.clear();
