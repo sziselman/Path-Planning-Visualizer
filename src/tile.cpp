@@ -42,26 +42,6 @@ void Tile::setPath() {
     shape.setFillColor(pathColor);
 }
 
-void Tile::updateParent(Tile* p) {
-    parent = p;
-}
-
-void Tile::updateF(double val) {
-    f = val;
-}
-
-void Tile::updateG(double val) {
-    g = val;
-}
-
-void Tile::updateRHS(double val) {
-    rhs = val;
-}
-
-void Tile::updateKey(std::pair<double, double> keyVal) {
-    key = keyVal;
-}
-
 bool AStarTilePtrCompare::operator()(const Tile* lhs, const Tile* rhs) const {
     if (lhs->f == rhs->f) {
         return lhs->g < rhs->g;

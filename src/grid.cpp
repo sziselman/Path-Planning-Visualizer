@@ -183,24 +183,31 @@ void Grid::makeSnakeObstacle() {
         for (int l = ymax; l > ymin; l--) {
             snakeTiles.push_back(getTileIdxFromTilePos(std::make_pair(xmin, l)));
         }
+        snakeIdx = snakeTiles[snakeTail];
     }
 
+    // tileMap[snakeIdx]->setDefault();
     for (auto o : obstacles) {
+        obstacles.erase(o);
         tileMap[o]->setDefault();
     }
 
-    snakeTail = (snakeTail + 1) % int(snakeTiles.size()-1);
-    std::cout << snakeTiles.size() << std::endl;
-    std::cout << "idx " << snakeTail << std::endl;
+    snakeTail = (snakeTail + 1) % int(snakeTiles.size());
 
-    // initialize the first idx and all preceding it
-    for (int s = snakeTail; s < snakeTail + snakeLen; s++) {
-        int idx = s % int(snakeTiles.size());
-        obstacles.insert(snakeTiles[idx]);
-        tileMap[snakeTiles[s]]->setObstacle();
+    int val;
+    int idx;
+    for (int s = 1; s < 4; s++) {
+        val = (snakeTail + s) % int(snakeTiles.size());
+        std::cout << "val " << val << std::endl;
+        idx = snakeTiles[val];
+        std::cout << "idx " << idx << std::endl;
+        obstacles.insert(idx);
     }
 
-    displayTiles();
+    for (auto o : obstacles) {
+        tileMap[o]->setObstacle();
+    }
+
     std::this_thread::sleep_for(std::chrono::milliseconds(120));
 
 }

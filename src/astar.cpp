@@ -1,53 +1,53 @@
 #include "astar.h"
 
 
-AStar::AStar(Grid* grid) : grid(grid) {}
+AStar::AStar(Grid& grid) : grid(grid) {}
 
 void AStar::solve(Tile* st, Tile* go) {
     std::cout << "solving search..." << std::endl;
     start = st;
     goal = go;
 
-    start->updateG(0.);
-    start->updateF(0.);
+    start->g = 0.;
+    start->f = 0.;
     open.insert(start);
 
-    double g, h, f;
+    double gVal, hVal, fVal;
 
     while (!open.empty()) {
         auto q = *open.begin();
         q->setClosed();
         closed.insert(q->idx);
         open.erase(open.begin());
-        grid->displayTiles();
+        grid.displayTiles();
 
         if (q == goal) {
             break;
         }
 
-        for (auto successor : grid->getSuccessors(q->idx)) {
+        for (auto successor : grid.getSuccessors(q->idx)) {
             if (closed.find(successor->idx) != closed.end()) {
                 continue;
             }
 
-            g = calculateG(q, successor);
-            h = calculateH(successor);
-            f = g + h;
+            gVal = calculateG(q, successor);
+            hVal = calculateH(successor);
+            fVal = gVal + hVal;
 
             auto it = open.find(successor);
             if (it != open.end()) {
-                if (successor->f > f) {
+                if (successor->f > fVal) {
                     open.erase(it);
-                    successor->updateParent(q);
-                    successor->updateG(g);
-                    successor->updateF(f);
+                    successor->parent = q;
+                    successor->g = gVal;
+                    successor->f = fVal;
                     open.insert(successor);
                 }
             }
             else {
-                successor->updateParent(q);
-                successor->updateG(g);
-                successor->updateF(f);
+                successor->parent = q;
+                successor->g = gVal;
+                successor->f = fVal;
                 successor->setOpened();
                 open.insert(successor);
             }

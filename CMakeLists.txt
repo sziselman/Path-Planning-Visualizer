@@ -5,20 +5,16 @@ add_executable(${PROJECT_NAME}
     ${CMAKE_SOURCE_DIR}/src/main.cpp
 )
 
-target_include_directories(${PROJECT_NAME} PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
-)
-
 add_library(visualizer SHARED
     src/visualizer.cpp
 )
 
-add_library(grid SHARED
-    src/grid.cpp
-)
-
 add_library(tile SHARED
     src/tile.cpp
+)
+
+add_library(grid SHARED
+    src/grid.cpp
 )
 
 add_library(astar SHARED
@@ -29,15 +25,19 @@ add_library(lpastar SHARED
     src/lpastar.cpp
 )
     
+target_include_directories(${PROJECT_NAME} PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
 target_include_directories(visualizer PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
-target_include_directories(grid PUBLIC
+target_include_directories(tile PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
-target_include_directories(tile PUBLIC
+target_include_directories(grid PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 

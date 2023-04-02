@@ -1,7 +1,7 @@
 #include "lpastar.h"
 
 
-LPAStar::LPAStar(Grid* grid) : grid(grid) {}
+LPAStar::LPAStar(Grid& grid) : grid(grid) {}
 
 void LPAStar::solve(Tile* st, Tile* go) {
     std::cout << "solving search..." << std::endl;
@@ -15,9 +15,9 @@ void LPAStar::solve(Tile* st, Tile* go) {
 }
 
 void LPAStar::initialize() {
-    start->updateRHS(0.);
+    start->rhs = 0.;
     auto keyVal = calculateKey(start);
-    start->updateKey(keyVal);
+    start->key = keyVal;
     open.insert(start);
 }
 
@@ -42,21 +42,21 @@ void LPAStar::computeShortestPath() {
         std::cout << "\n\ngoal k1=" << goal->key.first << ", k2=" << goal->key.second << std::endl;
 
         if (q->g > q->rhs) {
-            q->updateG(q->rhs);
+            q->g = q->rhs;
             std::cout << "q's g updated to " << q->g << std::endl;
         }
         else {
-            q->updateG(INT_MAX);
+            q->g = INT_MAX;
             updateTile(q);
         }
 
         std::cout << "\nSEARCHING SUCCESSORS: " << std::endl;
-        for (auto successor : grid->getSuccessors(q->idx)) {
+        for (auto successor : grid.getSuccessors(q->idx)) {
             successor->predecessors.insert(q);
             updateTile(successor);
         }
 
-        grid->displayTiles();
+        grid.displayTiles();
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 }
@@ -71,7 +71,7 @@ void LPAStar::updateTile(Tile* tile) {
         std::cout << "  searching predecessors to update rhs" << std::endl;
         // update the rhs value based on predecessors
         for (auto predecessor : tile->predecessors) {
-            tile->updateRHS(std::min(tile->rhs, calculateG(predecessor, tile)));
+            tile->rhs = std::min(tile->rhs, calculateG(predecessor, tile));
             std::cout << "  tile " << tile->idx << ", rhs=" << tile->rhs << std::endl;
         }
 
@@ -86,7 +86,8 @@ void LPAStar::updateTile(Tile* tile) {
             std::cout << "  locally inconsistent, adding to priority queue" << std::endl;
             std::cout << "  g=" << tile->g << ", rhs=" << tile->rhs << std::endl;
             // calculate key value and add to open list
-            tile->updateKey(calculateKey(tile));
+            std::pair<double, double> keyVal = calculateKey(tile);
+            tile->key = keyVal;
             open.insert(tile);
         }
     }

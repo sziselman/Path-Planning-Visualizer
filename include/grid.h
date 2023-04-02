@@ -13,8 +13,6 @@
 #include <set>
 
 #include "tile.h"
-#include "astar.h"
-#include "lpastar.h"
 
 
 class Grid {
@@ -49,11 +47,10 @@ class Grid {
         /// @brief Adds and updates obstacle position to make a "snake" that traverses the inner boundary of the grid
         void makeSnakeObstacle();
 
-        /// @brief Make Grid class a friend to AStar
-        friend class AStar;
-
-        /// @brief Make Grid class a friend to LPAStar
-        friend class LPAStar;
+        /// @brief Checks for all valid successors that are in bounds of the grid and not obstacles
+        /// @param idx The index location of the tile to get successors to
+        /// @return A vector containing pointers to the valid neighbors
+        std::vector<Tile*> getSuccessors(int idx);
 
     private:
         // window variables
@@ -61,7 +58,7 @@ class Grid {
         sf::Mouse& mouse;
 
         // tile variables
-        static constexpr double tileDim = 100;
+        static constexpr double tileDim = 50;
         int xTiles;
         int yTiles;
 
@@ -74,6 +71,7 @@ class Grid {
         // snake variables
         std::vector<int> snakeTiles;
         int snakeTail = 0;
+        int snakeIdx;
         int snakeLen;
 
         // private helper functions
@@ -99,11 +97,6 @@ class Grid {
         /// @brief Sets a new location for the start or goal tiles
         /// @param isStart True if setting new location for the start tile, False if setting new location for goal tile
         void setNewTile(bool isStart);
-
-        /// @brief Checks for all valid successors that are in bounds of the grid and not obstacles
-        /// @param idx The index location of the tile to get successors to
-        /// @return A vector containing pointers to the valid neighbors
-        std::vector<Tile*> getSuccessors(int idx);
 };
 
 #endif

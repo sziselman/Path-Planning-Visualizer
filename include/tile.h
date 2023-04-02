@@ -70,26 +70,6 @@ struct Tile {
 
         /// @brief Changes the tile to the traversed path color
         void setPath();
-
-        /// @brief Updates the parent pointer and recalculates g
-        /// @param p The pointer to the parent tile
-        void updateParent(Tile* p);
-
-        /// @brief Updates the current f-value
-        /// @param val The new f-value
-        void updateF(double val);
-
-        /// @brief Updates the current g-value
-        /// @param val The new g-value
-        void updateG(double val);
-
-        /// @brief Updates the current rhs value
-        /// @param val The new rhs value
-        void updateRHS(double val);
-
-        /// @brief Updates the key value used to sort the priority queue
-        /// @param keyVal The pair of key values, k1 and k2
-        void updateKey(std::pair<double, double> keyVal);
 };
 
 struct AStarTilePtrCompare {

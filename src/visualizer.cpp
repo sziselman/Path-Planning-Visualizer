@@ -41,7 +41,7 @@ void Visualizer::update(void) {
     }
     else {
         if (searchType == "astar") {
-            AStar algo(&grid);
+            AStar algo(grid);
             algo.solve(grid.getStart(), grid.getGoal());
         }
         else if (searchType == "lpastar") {
@@ -51,7 +51,7 @@ void Visualizer::update(void) {
             grid.makeSnakeObstacle();
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(120));
-        // solveSearch = false;
+        solveSearch = false;
     }
 
     window.clear();

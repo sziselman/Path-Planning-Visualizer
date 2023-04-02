@@ -7,20 +7,20 @@
 
 #include <climits>
 
-#include "search.h"
-#include "grid.h"
 #include "tile.h"
+#include "grid.h"
+#include "search.h"
 
 
 class Grid;
 
 class LPAStar : public Search {
     public:
-        LPAStar(Grid* grid);
+        LPAStar(Grid& grid);
         void solve(Tile* st, Tile* go) override;
         void updateTile(Tile* tile);
     private:
-        Grid* grid;
+        Grid grid;
 
         Tile* start;
         Tile* goal;
