@@ -9,7 +9,10 @@
 
 class Search {
     public:
-        virtual void solve(Tile* st, Tile* go) {}
+        Search() {}
+        virtual ~Search() {}
+        virtual void solve(Tile* st, Tile* go) = 0;
+        virtual void examineChangedTiles() {};
     private:
 };
 

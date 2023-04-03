@@ -27,31 +27,28 @@ void Visualizer::update(void) {
 
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
                 searchType = "astar";
+                algo = new AStar(&grid);
                 solveSearch = true;
             }
 
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::L)) {
                 searchType = "lpastar";
+                algo = new LPAStar(&grid);
                 solveSearch = true;
-            }
-
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
-                
             }
     }
     else {
         if (searchType == "astar") {
-            AStar algo(grid);
-            algo.solve(grid.getStart(), grid.getGoal());
+            algo->solve(grid.getStart(), grid.getGoal());
+            solveSearch = false;
         }
         else if (searchType == "lpastar") {
-            // LPAStar algo(&grid);
-            // algo.solve(grid.getStart(), grid.getGoal());
-
-            grid.makeSnakeObstacle();
+            algo->solve(grid.getStart(), grid.getGoal());
+            // grid.makeSnakeObstacle();
+            // algo->examineChangedTiles();
+            solveSearch = false;
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(120));
-        solveSearch = false;
     }
 
     window.clear();

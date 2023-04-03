@@ -8,7 +8,9 @@
 #include <string.h>
 
 #include "grid.h"
+#include "search.h"
 #include "astar.h"
+#include "lpastar.h"
 
 
 class Visualizer {
@@ -35,8 +37,13 @@ class Visualizer {
         sf::RenderWindow window;
         sf::Mouse mouse;
         Grid grid;
+
+        Search* algo;
+
         bool solveSearch = false;
         std::string searchType;
+
+        bool isInitialized = false;
 };
 
 #endif

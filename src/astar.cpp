@@ -1,7 +1,9 @@
 #include "astar.h"
 
 
-AStar::AStar(Grid& grid) : grid(grid) {}
+AStar::AStar(Grid* grid) : grid(grid) {}
+
+AStar::~AStar() {}
 
 void AStar::solve(Tile* st, Tile* go) {
     std::cout << "solving search..." << std::endl;
@@ -19,13 +21,13 @@ void AStar::solve(Tile* st, Tile* go) {
         q->setClosed();
         closed.insert(q->idx);
         open.erase(open.begin());
-        grid.displayTiles();
+        grid->displayTiles();
 
         if (q == goal) {
             break;
         }
 
-        for (auto successor : grid.getSuccessors(q->idx)) {
+        for (auto successor : grid->getSuccessors(q)) {
             if (closed.find(successor->idx) != closed.end()) {
                 continue;
             }

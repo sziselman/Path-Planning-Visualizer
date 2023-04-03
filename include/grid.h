@@ -10,6 +10,7 @@
 #include <cmath>
 #include <climits>
 #include <iostream>
+#include <algorithm>
 #include <set>
 
 #include "tile.h"
@@ -48,9 +49,13 @@ class Grid {
         void makeSnakeObstacle();
 
         /// @brief Checks for all valid successors that are in bounds of the grid and not obstacles
-        /// @param idx The index location of the tile to get successors to
-        /// @return A vector containing pointers to the valid neighbors
-        std::vector<Tile*> getSuccessors(int idx);
+        /// @param tile The tile pointer to get successors from
+        /// @return A vector containing pointers to the valid successors
+        std::vector<Tile*> getSuccessors(const Tile* tile);
+
+        std::set<Tile*> getChangedTiles();
+
+        std::set<int> getObstacles();
 
     private:
         // window variables
@@ -58,7 +63,7 @@ class Grid {
         sf::Mouse& mouse;
 
         // tile variables
-        static constexpr double tileDim = 50;
+        static constexpr double tileDim = 100;
         int xTiles;
         int yTiles;
 
@@ -67,11 +72,11 @@ class Grid {
         int goal;
         std::map<int, Tile*> tileMap;
         std::set<int> obstacles;
+        std::set<int> changedIdxs;
 
         // snake variables
         std::vector<int> snakeTiles;
         int snakeTail = 0;
-        int snakeIdx;
         int snakeLen;
 
         // private helper functions

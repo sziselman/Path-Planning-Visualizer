@@ -6,6 +6,8 @@ Grid::Grid(int width, int height, sf::RenderWindow& window, sf::Mouse& mouse) : 
     yTiles = height / tileDim;
     int totalTiles = xTiles * yTiles;
 
+    snakeLen = xTiles / 2;
+
     Tile* tileptr; 
 
     for (int i = 0; i < totalTiles; i++) {
@@ -133,11 +135,11 @@ void Grid::setNewTile(bool isStart) {
     std::this_thread::sleep_for(std::chrono::milliseconds(300));
 }
 
-std::vector<Tile*> Grid::getSuccessors(int idx) {
+std::vector<Tile*> Grid::getSuccessors(const Tile* tile) {
     std::vector<std::pair<int, int>> successorPoses;
     
-    int x = tileMap[idx]->x;
-    int y = tileMap[idx]->y;
+    int x = tile->x;
+    int y = tile->y;
 
     successorPoses.push_back(std::make_pair(x-1, y-1));     // north-west
     successorPoses.push_back(std::make_pair(x, y-1));       // north
@@ -160,54 +162,69 @@ std::vector<Tile*> Grid::getSuccessors(int idx) {
 }
 
 void Grid::makeSnakeObstacle() {
-    snakeLen = xTiles / 2;
-    int xmin = 1;
-    int xmax = xTiles - 2;
-    int ymin = 1;
-    int ymax = yTiles - 2;
-
     if (snakeTiles.empty()) {
+        int xmin = 1;
+        int xmax = xTiles - 2;
+        int ymin = 1;
+        int ymax = yTiles - 2;
+
         // northern wall
         for (int i = xmin; i < xmax; i++) {
             snakeTiles.push_back(getTileIdxFromTilePos(std::make_pair(i, ymin)));
         }
         // eastern wall
-        for (int j = ymin; j < ymax; j++) {
-            snakeTiles.push_back(getTileIdxFromTilePos(std::make_pair(xmax, j)));
+        for (int i = ymin; i < ymax; i++) {
+            snakeTiles.push_back(getTileIdxFromTilePos(std::make_pair(xmax, i)));
         }
         // southern wall
-        for (int k = xmax; k > xmin; k--) {
-            snakeTiles.push_back(getTileIdxFromTilePos(std::make_pair(k, ymax)));
+        for (int i = xmax; i > xmin; i--) {
+            snakeTiles.push_back(getTileIdxFromTilePos(std::make_pair(i, ymax)));
         }
-        // eastern wall
-        for (int l = ymax; l > ymin; l--) {
-            snakeTiles.push_back(getTileIdxFromTilePos(std::make_pair(xmin, l)));
+        // western wall
+        for (int i = ymax; i > ymin; i--) {
+            snakeTiles.push_back(getTileIdxFromTilePos(std::make_pair(xmin, i)));
         }
-        snakeIdx = snakeTiles[snakeTail];
     }
 
-    // tileMap[snakeIdx]->setDefault();
+    auto prevObstacles = obstacles;
+
     for (auto o : obstacles) {
-        obstacles.erase(o);
         tileMap[o]->setDefault();
-    }
+    } 
 
-    snakeTail = (snakeTail + 1) % int(snakeTiles.size());
+    obstacles.clear();
+
+    snakeTail = (snakeTail + 1) % snakeTiles.size();
 
     int val;
     int idx;
-    for (int s = 1; s < 4; s++) {
-        val = (snakeTail + s) % int(snakeTiles.size());
-        std::cout << "val " << val << std::endl;
-        idx = snakeTiles[val];
-        std::cout << "idx " << idx << std::endl;
-        obstacles.insert(idx);
+    for (int s = 0; s < snakeLen; s++) {
+        idx = (snakeTail + s) % snakeTiles.size();
+        val = snakeTiles[idx];
+        obstacles.insert(val);
     }
 
     for (auto o : obstacles) {
         tileMap[o]->setObstacle();
     }
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(120));
+    // find the tiles that changed from obstacle to not or vice versa
+    changedIdxs.clear();
+    auto it = std::set_symmetric_difference(obstacles.begin(), obstacles.end(), prevObstacles.begin(), prevObstacles.end(), std::inserter(changedIdxs, changedIdxs.begin()));
+}
 
+std::set<Tile*> Grid::getChangedTiles() {
+    std::set<Tile*> changedTiles;
+
+    for (auto c : changedIdxs) {
+        changedTiles.insert(tileMap[c]);
+        auto successors = getSuccessors(tileMap[c]);
+        changedTiles.insert(successors.begin(), successors.end());
+    }
+
+    return changedTiles;
+}
+
+std::set<int> Grid::getObstacles() {
+    return obstacles;
 }

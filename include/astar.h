@@ -13,10 +13,13 @@
 // class Grid;
 
 class AStar : public Search {
-    public:
+    public:  
         /// @brief Constructor for AStar class
         /// @param grid Pointer to the grid that stores tile information
-        AStar(Grid& grid);
+        AStar(Grid* grid);
+
+        /// @brief Destructor for AStar class
+        ~AStar();
 
         /// @brief Searches for an optimal path from start to goal
         /// @param st Pointer to start tile
@@ -24,7 +27,7 @@ class AStar : public Search {
         void solve(Tile* st, Tile* go) override;
 
     private:
-        Grid grid;
+        Grid* grid;
 
         Tile* start;
         Tile* goal;
