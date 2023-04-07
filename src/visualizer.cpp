@@ -42,10 +42,27 @@ void Visualizer::update(void) {
             algo->solve(grid.getStart(), grid.getGoal());
             solveSearch = false;
         }
+        else if (searchType == "dstar") {
+            algo->solve(grid.getStart(), grid.getGoal());
+            solveSearch = false;
+        }
         else if (searchType == "lpastar") {
             algo->solve(grid.getStart(), grid.getGoal());
-            grid.makeSnakeObstacle();
+            grid.displayTiles();
+            std::this_thread::sleep_for(std::chrono::milliseconds(1200));
+
+            grid.makeObstacle(5);
             algo->examineChangedTiles();
+            algo->solve(grid.getStart(), grid.getGoal());
+            grid.displayTiles();
+            std::this_thread::sleep_for(std::chrono::milliseconds(1200));
+
+            grid.makeObstacle(10);
+            algo->examineChangedTiles();
+            algo->solve(grid.getStart(), grid.getGoal());
+            grid.displayTiles();
+            std::this_thread::sleep_for(std::chrono::milliseconds(1200));
+
             solveSearch = false;
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(120));

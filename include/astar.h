@@ -2,15 +2,12 @@
  * @brief AStar class for searching and creating path using A* search algorithm
 */
 
-#ifndef _A_STAR_H
-#define _A_STAR_H
+#pragma once
 
 #include "tile.h"
 #include "grid.h"
 #include "search.h"
 
-
-// class Grid;
 
 class AStar : public Search {
     public:  
@@ -27,7 +24,6 @@ class AStar : public Search {
         void solve(Tile* st, Tile* go) override;
 
     private:
-        // Grid* grid;
         Grid grid;
 
         Tile* start;
@@ -52,5 +48,3 @@ class AStar : public Search {
 
         void getPath();
 };
-
-#endif

@@ -161,70 +161,87 @@ std::vector<Tile*> Grid::getSuccessors(const Tile* tile) {
     return successors;
 }
 
-void Grid::makeSnakeObstacle() {
-    if (snakeTiles.empty()) {
-        int xmin = 1;
-        int xmax = xTiles - 2;
-        int ymin = 1;
-        int ymax = yTiles - 2;
+// void Grid::makeSnakeObstacle() {
+//     if (snakeTiles.empty()) {
+//         int xmin = 1;
+//         int xmax = xTiles - 2;
+//         int ymin = 1;
+//         int ymax = yTiles - 2;
 
-        // northern wall
-        for (int i = xmin; i < xmax; i++) {
-            snakeTiles.push_back(getTileIdxFromTilePos(std::make_pair(i, ymin)));
-        }
-        // eastern wall
-        for (int i = ymin; i < ymax; i++) {
-            snakeTiles.push_back(getTileIdxFromTilePos(std::make_pair(xmax, i)));
-        }
-        // southern wall
-        for (int i = xmax; i > xmin; i--) {
-            snakeTiles.push_back(getTileIdxFromTilePos(std::make_pair(i, ymax)));
-        }
-        // western wall
-        for (int i = ymax; i > ymin; i--) {
-            snakeTiles.push_back(getTileIdxFromTilePos(std::make_pair(xmin, i)));
-        }
-    }
+//         // northern wall
+//         for (int i = xmin; i < xmax; i++) {
+//             snakeTiles.push_back(getTileIdxFromTilePos(std::make_pair(i, ymin)));
+//         }
+//         // eastern wall
+//         for (int i = ymin; i < ymax; i++) {
+//             snakeTiles.push_back(getTileIdxFromTilePos(std::make_pair(xmax, i)));
+//         }
+//         // southern wall
+//         for (int i = xmax; i > xmin; i--) {
+//             snakeTiles.push_back(getTileIdxFromTilePos(std::make_pair(i, ymax)));
+//         }
+//         // western wall
+//         for (int i = ymax; i > ymin; i--) {
+//             snakeTiles.push_back(getTileIdxFromTilePos(std::make_pair(xmin, i)));
+//         }
+//     }
 
-    auto prevObstacles = obstacles;
+//     auto prevObstacles = obstacles;
 
-    for (auto o : obstacles) {
-        tileMap[o]->setDefault();
-    } 
+//     for (auto o : obstacles) {
+//         tileMap[o]->setDefault();
+//     } 
 
-    obstacles.clear();
+//     obstacles.clear();
 
-    snakeTail = (snakeTail + 1) % snakeTiles.size();
+//     snakeTail = (snakeTail + 1) % snakeTiles.size();
 
-    int val;
-    int idx;
-    for (int s = 0; s < snakeLen; s++) {
-        idx = (snakeTail + s) % snakeTiles.size();
-        val = snakeTiles[idx];
-        obstacles.insert(val);
-    }
+//     int val;
+//     int idx;
+//     for (int s = 0; s < snakeLen; s++) {
+//         idx = (snakeTail + s) % snakeTiles.size();
+//         val = snakeTiles[idx];
+//         obstacles.insert(val);
+//     }
 
-    for (auto o : obstacles) {
-        tileMap[o]->setObstacle();
-    }
+//     for (auto o : obstacles) {
+//         tileMap[o]->setObstacle();
+//     }
 
-    // find the tiles that changed from obstacle to not or vice versa
-    changedIdxs.clear();
-    auto it = std::set_symmetric_difference(obstacles.begin(), obstacles.end(), prevObstacles.begin(), prevObstacles.end(), std::inserter(changedIdxs, changedIdxs.begin()));
-}
+//     // find the tiles that changed from obstacle to not or vice versa
+//     changedIdxs.clear();
+//     auto it = std::set_symmetric_difference(obstacles.begin(), obstacles.end(), prevObstacles.begin(), prevObstacles.end(), std::inserter(changedIdxs, changedIdxs.begin()));
+// }
 
 std::set<Tile*> Grid::getChangedTiles() {
     std::set<Tile*> changedTiles;
 
     for (auto c : changedIdxs) {
         changedTiles.insert(tileMap[c]);
-        auto successors = getSuccessors(tileMap[c]);
-        changedTiles.insert(successors.begin(), successors.end());
     }
-
     return changedTiles;
 }
 
 std::set<int> Grid::getObstacles() {
     return obstacles;
+}
+
+void Grid::makeObstacle(int idx) {
+    // clear original obstacles and make copy
+    for (auto o : obstacles) {
+        tileMap[o]->setDefault();
+    }
+    auto prevObstacles = obstacles;
+
+    obstacles.clear();
+
+    obstacles.insert(idx);
+    // obstacles.insert(idx+1);
+    for (auto o : obstacles) {
+        tileMap[o]->setObstacle();
+    }
+
+    // update the idx of changed tiles
+    changedIdxs.clear();
+    auto it = std::set_symmetric_difference(obstacles.begin(), obstacles.end(), prevObstacles.begin(), prevObstacles.end(), std::inserter(changedIdxs, changedIdxs.begin()));
 }

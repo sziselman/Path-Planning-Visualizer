@@ -1,8 +1,7 @@
 /**
  * @brief Visualizer class for displaying the rendered window
 */
-#ifndef _VISUALIZER_H
-#define _VISUALIZER_H
+#pragma once
 
 #include <SFML/Graphics.hpp>
 #include <string.h>
@@ -45,5 +44,3 @@ class Visualizer {
 
         bool isInitialized = false;
 };
-
-#endif

@@ -21,11 +21,28 @@ void LPAStar::solve(Tile* st, Tile* go) {
 }
 
 void LPAStar::examineChangedTiles() {
-    std::cout << "examining changed tiles" << std::endl;
+
+    auto obstacles = grid.getObstacles();
+
+    bool isObstacle;
+
+    std::cout << "\n\n ~~~~ examining changed tiles ~~~~" << std::endl;
     for (auto tile : grid.getChangedTiles()) {
-        std::cout << "tile " << tile->idx << std::endl;
-        updatePredecessors(tile);
-        updateTile(tile);
+        std::cout << "\n\ntile " << tile->idx << std::endl;
+        for (auto successor : grid.getSuccessors(tile)) {
+            if (obstacles.find(tile->idx) != obstacles.end()) {
+                successor->predecessors.erase(tile);
+            }
+            else {
+                successor->predecessors.insert(tile);
+            }
+            updateTile(successor);
+        }
+    }
+
+    std::cout << "\n ++++ updated priority queue ++++" << std::endl;
+    for (auto o : open) {
+        std::cout << "tile " << o->idx << ", address=" << o << ", k1=" << o->key.first << ", k2=" << o->key.second << ", g=" << o->g << ", rhs=" << o->rhs << std::endl;
     }
 }
 
@@ -39,10 +56,19 @@ void LPAStar::initialize() {
 void LPAStar::computeShortestPath() {
     auto q = *open.begin();
     while (q->key < calculateKey(goal) || goal->rhs != goal->g) {
+
+        std::cout << "\n ++++ updated priority queue ++++" << std::endl;
+        for (auto o : open) {
+            std::cout << "tile " << o->idx << ", address=" << o << ", k1=" << o->key.first << ", k2=" << o->key.second << std::endl;
+        }
+
         q = *open.begin();
         open.erase(open.begin());
         q->setClosed();
         closed.insert(q->idx);
+
+        std::cout << "\nq is " << q->idx << std::endl;
+
         if (q->g > q->rhs) {
             q->g = q->rhs;
         }
@@ -50,7 +76,10 @@ void LPAStar::computeShortestPath() {
             q->g = INT_MAX;
             updateTile(q);
         }
+
+        std::cout << "q's successors: " << std::endl;
         for (auto successor : grid.getSuccessors(q)) {
+            std::cout << "  tile " << successor->idx << std::endl;
             successor->predecessors.insert(q);
             updateTile(successor);
         }
@@ -62,24 +91,29 @@ void LPAStar::computeShortestPath() {
 }
 
 void LPAStar::updateTile(Tile* tile) {
+    std::cout << "updating tile " << tile->idx << ", rhs=" << tile->rhs << ", g=" << tile->g << std::endl;
     if (tile != start) {
         tile->rhs = INT_MAX;
         // update the rhs value based on predecessors
         for (auto predecessor : tile->predecessors) {
+            std::cout << "   predecessor tile " << predecessor->idx << std::endl;
             tile->rhs = std::min(tile->rhs, calculateG(predecessor, tile));
         }
+        std::cout << "   updated rhs value " << tile->rhs << ", g=" << tile->g << std::endl;
 
         auto it = open.find(tile);
         // if priority queue is in open list, remove it
         if (it != open.end()) {
             open.erase(it);
         }
+
         // if tile is locally inconsistent, put that shit back
         if (tile->g != tile->rhs) {
             // calculate key value and add to open list
             std::pair<double, double> keyVal = calculateKey(tile);
+            std::cout << "  key 1=" << keyVal.first << ", k2=" << keyVal.second << std::endl;
             tile->key = keyVal;
-            tile->setOpened();
+            // tile->setOpened();
             open.insert(tile);
         }
     }
@@ -114,23 +148,13 @@ void LPAStar::getPath() {
     curr->setPath();
 }
 
-void LPAStar::updatePredecessors(Tile* tile) {
-    std::vector<Tile*> removePredecessors;
+void LPAStar::examineTile(Tile* tile) {
+    std::cout << "successors " << std::endl;
+    for (auto successor : grid.getSuccessors(tile)) {
+        std::cout << "  tile " << successor->idx << std::endl;
 
-    for (auto p : tile->predecessors) {
-        auto obstacles = grid.getObstacles();
-        if (obstacles.find(p->idx) != obstacles.end()) {
-            removePredecessors.push_back(p);
+        if (successor->predecessors.find(tile) != successor->predecessors.end()) {
+            successor->predecessors.erase(tile);
         }
-    }
-
-    for (auto p : removePredecessors) {
-        std::cout << "removing predecessor " << p->idx << std::endl;
-        tile->predecessors.erase(p);
-    }
-
-    std::cout << "updated predecessors" << std::endl;
-    for (auto p : tile->predecessors) {
-        std::cout << "predecessor tile " << p->idx << std::endl;
     }
 }

@@ -45,8 +45,10 @@ class Grid {
         /// @brief Updates the start or goal tiles if the user left clicks the start or goal tires
         void updateStartGoalTiles();
 
-        /// @brief Adds and updates obstacle position to make a "snake" that traverses the inner boundary of the grid
-        void makeSnakeObstacle();
+        // /// @brief Adds and updates obstacle position to make a "snake" that traverses the inner boundary of the grid
+        // void makeSnakeObstacle();
+
+        void makeObstacle(int idx);
 
         /// @brief Checks for all valid successors that are in bounds of the grid and not obstacles
         /// @param tile The tile pointer to get successors from
@@ -63,7 +65,7 @@ class Grid {
         sf::Mouse& mouse;
 
         // tile variables
-        static constexpr double tileDim = 100;
+        static constexpr double tileDim = 250;
         int xTiles;
         int yTiles;
 
@@ -76,7 +78,7 @@ class Grid {
 
         // snake variables
         std::vector<int> snakeTiles;
-        int snakeTail = 0;
+        int snakeTail = -1;
         int snakeLen;
 
         // private helper functions
