@@ -1,7 +1,7 @@
 #include "lpastar.h"
 
 
-LPAStar::LPAStar(Grid* grid) : grid(grid) {}
+LPAStar::LPAStar(Grid& grid): grid(grid) {}
 
 LPAStar::~LPAStar() {}
 
@@ -22,7 +22,7 @@ void LPAStar::solve(Tile* st, Tile* go) {
 
 void LPAStar::examineChangedTiles() {
     std::cout << "examining changed tiles" << std::endl;
-    for (auto tile : grid->getChangedTiles()) {
+    for (auto tile : grid.getChangedTiles()) {
         std::cout << "tile " << tile->idx << std::endl;
         updatePredecessors(tile);
         updateTile(tile);
@@ -50,12 +50,13 @@ void LPAStar::computeShortestPath() {
             q->g = INT_MAX;
             updateTile(q);
         }
-        for (auto successor : grid->getSuccessors(q)) {
+        for (auto successor : grid.getSuccessors(q)) {
             successor->predecessors.insert(q);
             updateTile(successor);
         }
 
-        grid->displayTiles();
+        grid.displayTiles();
+
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 }
@@ -117,7 +118,7 @@ void LPAStar::updatePredecessors(Tile* tile) {
     std::vector<Tile*> removePredecessors;
 
     for (auto p : tile->predecessors) {
-        auto obstacles = grid->getObstacles();
+        auto obstacles = grid.getObstacles();
         if (obstacles.find(p->idx) != obstacles.end()) {
             removePredecessors.push_back(p);
         }

@@ -16,7 +16,8 @@ class Grid;
 
 class LPAStar : public Search {
     public:
-        LPAStar(Grid* grid);
+        // LPAStar(Grid* grid);
+        LPAStar(Grid& grid);
 
         ~LPAStar();
 
@@ -25,8 +26,9 @@ class LPAStar : public Search {
         void examineChangedTiles() override; 
 
     private:
-        Grid* grid;
-
+        // Grid* grid;
+        Grid& grid;
+        
         Tile* start;
         Tile* goal;
 

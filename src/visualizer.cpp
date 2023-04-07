@@ -27,13 +27,13 @@ void Visualizer::update(void) {
 
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
                 searchType = "astar";
-                algo = new AStar(&grid);
+                algo = new AStar(grid);
                 solveSearch = true;
             }
 
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::L)) {
                 searchType = "lpastar";
-                algo = new LPAStar(&grid);
+                algo = new LPAStar(grid);
                 solveSearch = true;
             }
     }
@@ -44,8 +44,8 @@ void Visualizer::update(void) {
         }
         else if (searchType == "lpastar") {
             algo->solve(grid.getStart(), grid.getGoal());
-            // grid.makeSnakeObstacle();
-            // algo->examineChangedTiles();
+            grid.makeSnakeObstacle();
+            algo->examineChangedTiles();
             solveSearch = false;
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(120));
